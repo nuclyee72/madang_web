@@ -10,13 +10,14 @@
   <style>
     @font-face {
       font-family: 'GyeonggiBatang';
-      src: url('/static/gyeonggi_batang_regular.ttf') format('truetype');
+      src: url('/static/gyeonggi_batang_regular.woff2') format('woff2');
       font-weight: normal;
       font-style: normal;
     }
+
     @font-face {
       font-family: 'GyeonggiTitle';
-      src: url('/static/gyeonggi_title_medium.ttf') format('truetype');
+      src: url('/static/gyeonggi_title_medium.woff2') format('woff2');
       font-weight: 500;
       font-style: normal;
     }
@@ -39,14 +40,25 @@
       color: #333;
     }
 
-    h1, h2, h3, .logo-title {
+    h1,
+    h2,
+    h3,
+    .logo-title {
       font-family: 'GyeonggiTitle', system-ui, -apple-system, sans-serif;
     }
 
     @keyframes liquidGradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
     }
 
     /* ── Layout ── */
@@ -155,26 +167,74 @@
     }
 
     @media (max-width: 600px) {
+      .header {
+        margin-bottom: 25px;
+      }
+
       .header h1 {
-        font-size: 28px;
+        font-size: 28px; /* 24px -> 28px */
+      }
+
+      .header p {
+        font-size: 14.5px; /* 13px -> 14.5px */
       }
 
       .page {
-        padding: 40px 15px;
+        padding: 30px 15px;
       }
 
       .site-card {
-        flex-direction: column;
-        text-align: center;
+        padding: 16px;
+        gap: 12px;
+        flex-direction: row;
+        /* 모바일에서도 가로 배치 유지하여 공간 절약 */
+        text-align: left;
+      }
+
+      .card-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+      }
+
+      .card-title {
+        font-size: 17px; /* 16px -> 17px */
+        margin-bottom: 2px;
+      }
+
+      .card-desc {
+        font-size: 12.5px; /* 11px -> 12.5px */
+      }
+
+      .card-arrow {
+        display: none;
+      }
+
+      /* 화살표 제거하여 공간 확보 */
+
+      .cards-grid {
+        gap: 12px;
+      }
+
+      .footer {
+        margin-top: 30px;
       }
     }
 
     body {
       animation: slideDownEnter 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
+
     @keyframes slideDownEnter {
-      0% { transform: translateY(-30px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
+      0% {
+        transform: translateY(-30px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
 
     /* ── Standing Character Images ── */
@@ -185,33 +245,75 @@
       z-index: 10;
       transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1);
     }
-    .p-item img { pointer-events: auto; }
 
-    .p-left-char { bottom: -80px; left: -3vw; z-index: 12; }
-    .p-right-char { bottom: -80px; right: -3vw; z-index: 12; }
+    .p-item img {
+      pointer-events: auto;
+    }
+
+    .p-left-char {
+      bottom: -80px;
+      left: -3vw;
+      z-index: 12;
+    }
+
+    .p-right-char {
+      bottom: -80px;
+      right: -3vw;
+      z-index: 12;
+    }
 
     @media (max-width: 1200px) {
-      .p-left-char { left: -2vw; bottom: -120px; }
-      .p-right-char { right: -2vw; bottom: -120px; }
+      .p-left-char {
+        left: -2vw;
+        bottom: -120px;
+      }
+
+      .p-right-char {
+        right: -2vw;
+        bottom: -120px;
+      }
     }
+
     @media (max-width: 800px) {
-      .p-left-char, .p-right-char { display: none; }
+      .p-left-char {
+        left: -8vw;
+        bottom: -5vh;
+      }
+
+      .p-right-char {
+        right: -8vw;
+        bottom: -5vh;
+      }
+
+      .standing-char {
+        height: 45vh !important;
+        opacity: 1 !important;
+      }
+
+      .decor-item {
+        display: none;
+      }
+
+      /* 복잡한 장식은 모바일에서 숨김 */
     }
 
     /* ── Standing Character Images ── */
     .standing-char {
       height: 88vh;
-      opacity: 0.95;
+      opacity: 1;
       cursor: pointer;
       mix-blend-mode: multiply;
       transition: opacity 0.3s ease;
       user-select: none;
       -webkit-user-drag: none;
-      filter: drop-shadow(0 10px 30px rgba(0,0,0,0.15));
+      filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.15));
     }
 
     @media (max-width: 1200px) {
-      .standing-char { height: 65vh; opacity: 0.6; }
+      .standing-char {
+        height: 65vh;
+        opacity: 1;
+      }
     }
 
     /* 클릭 시 "뽈롱" 애니메이션 */
@@ -220,27 +322,54 @@
     }
 
     @keyframes charPop {
-      0% { transform: scale(1); }
-      30% { transform: scale(0.9, 1.1) translateY(-20px); }
-      50% { transform: scale(1.05, 0.95); }
-      100% { transform: scale(1); }
+      0% {
+        transform: scale(1);
+      }
+
+      30% {
+        transform: scale(0.9, 1.1) translateY(-20px);
+      }
+
+      50% {
+        transform: scale(1.05, 0.95);
+      }
+
+      100% {
+        transform: scale(1);
+      }
     }
 
     /* ── Floating Animations ── */
     .char-left {
       animation: floatLeft 6s ease-in-out infinite;
     }
+
     .char-right {
       animation: floatRight 6.5s ease-in-out infinite;
     }
 
     @keyframes floatLeft {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
     }
+
     @keyframes floatRight {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
     }
 
     /* 클릭 파티클 이펙트 */
@@ -255,41 +384,102 @@
     }
 
     @keyframes particleOut {
-      0% { transform: translate(0, 0) scale(1); opacity: 1; }
-      100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(var(--dx), var(--dy)) scale(0);
+        opacity: 0;
+      }
     }
 
     /* ── Decorative Floating Items ── */
-    .p-blue-1 { top: 12%; left: 18%; z-index: 1; }
-    .p-blue-2 { bottom: 45%; left: 24%; z-index: 1; }
-    .p-orange-1 { top: 14%; right: 18%; z-index: 1; }
-    .p-orange-2 { bottom: 42%; right: 23%; z-index: 1; }
+    .p-blue-1 {
+      top: 12%;
+      left: 18%;
+      z-index: 1;
+    }
+
+    .p-blue-2 {
+      bottom: 45%;
+      left: 24%;
+      z-index: 1;
+    }
+
+    .p-orange-1 {
+      top: 14%;
+      right: 18%;
+      z-index: 1;
+    }
+
+    .p-orange-2 {
+      bottom: 42%;
+      right: 23%;
+      z-index: 1;
+    }
 
     .decor-item {
       pointer-events: none;
       opacity: 1;
-      filter: drop-shadow(0 5px 15px rgba(0,0,0,0.08));
+      filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.08));
       mix-blend-mode: normal;
     }
-    
-    .decor-blue-1 { width: 90px; animation: floatDecorFlip 8s ease-in-out infinite; }
-    .decor-blue-2 { width: 110px; animation: floatDecor 10s ease-in-out infinite reverse; }
-    .decor-orange-1 { width: 80px; animation: floatDecor 9s ease-in-out infinite; }
-    .decor-orange-2 { width: 100px; animation: floatDecorFlip 11s ease-in-out infinite reverse; }
+
+    .decor-blue-1 {
+      width: 90px;
+      animation: floatDecorFlip 8s ease-in-out infinite;
+    }
+
+    .decor-blue-2 {
+      width: 110px;
+      animation: floatDecor 10s ease-in-out infinite reverse;
+    }
+
+    .decor-orange-1 {
+      width: 80px;
+      animation: floatDecor 9s ease-in-out infinite;
+    }
+
+    .decor-orange-2 {
+      width: 100px;
+      animation: floatDecorFlip 11s ease-in-out infinite reverse;
+    }
 
     /* ── Parallax Wrapper 제거됨 (개별 처리로 변경) ── */
 
     @keyframes floatDecor {
-      0%, 100% { transform: translate(0, 0) rotate(0deg); }
-      33% { transform: translate(10px, -15px) rotate(2deg); }
-      66% { transform: translate(-10px, 10px) rotate(-2deg); }
+
+      0%,
+      100% {
+        transform: translate(0, 0) rotate(0deg);
+      }
+
+      33% {
+        transform: translate(10px, -15px) rotate(2deg);
+      }
+
+      66% {
+        transform: translate(-10px, 10px) rotate(-2deg);
+      }
     }
 
     /* 좌우 반전된 요소들을 위한 별도 애니메이션 */
     @keyframes floatDecorFlip {
-      0%, 100% { transform: scaleX(-1) translate(0, 0) rotate(0deg); }
-      33% { transform: scaleX(-1) translate(-10px, -15px) rotate(-2deg); }
-      66% { transform: scaleX(-1) translate(10px, 10px) rotate(2deg); }
+
+      0%,
+      100% {
+        transform: scaleX(-1) translate(0, 0) rotate(0deg);
+      }
+
+      33% {
+        transform: scaleX(-1) translate(-10px, -15px) rotate(-2deg);
+      }
+
+      66% {
+        transform: scaleX(-1) translate(10px, 10px) rotate(2deg);
+      }
     }
 
     /* ── Page Transition Exit ── */
@@ -338,10 +528,10 @@
 
   <!-- Distributed Parallax Items (각기 다른 Depth 가중치 부여) -->
   <div class="p-item p-left-char" data-depth="1.0">
-    <img src="/static/left_char.png" class="standing-char" alt="좌측 캐릭터">
+    <img src="/static/left_char.png" class="standing-char char-left" alt="좌측 캐릭터">
   </div>
   <div class="p-item p-right-char" data-depth="1.0">
-    <img src="/static/right_char.png" class="standing-char" alt="우측 캐릭터">
+    <img src="/static/right_char.png" class="standing-char char-right" alt="우측 캐릭터">
   </div>
 
   <div class="p-item p-blue-1" data-depth="0.7">
@@ -359,13 +549,13 @@
 
   <script>
     document.querySelectorAll('.site-card').forEach(card => {
-      card.addEventListener('click', function(e) {
+      card.addEventListener('click', function (e) {
         const target = this.getAttribute('href');
         if (target && target.startsWith('/')) {
           e.preventDefault();
           document.querySelector('.page').style.transition = 'transform 0.25s cubic-bezier(0.7, 0, 0.2, 1), opacity 0.2s ease';
           document.querySelector('.page').classList.add('slide-up-exit');
-          
+
           document.querySelectorAll('.standing-char').forEach(char => {
             char.style.transition = 'transform 0.25s cubic-bezier(0.7, 0, 0.2, 1), opacity 0.2s ease';
             char.classList.add('slide-up-exit');
@@ -378,14 +568,14 @@
 
     // 캐릭터 클릭 인터랙션
     document.querySelectorAll('.standing-char').forEach(char => {
-      char.addEventListener('click', function(e) {
+      char.addEventListener('click', function (e) {
         // 애니메이션 중복 방지 및 실행
         this.classList.remove('char-pop');
         void this.offsetWidth; // reflow
         this.classList.add('char-pop');
 
         // 파티클 생성
-        const colors = this.classList.contains('char-left') 
+        const colors = this.classList.contains('char-left')
           ? ['#add8e6', '#87ceeb', '#b0c4de', '#ffffff'] // 파랑 캐릭터용 파티클
           : ['#ffb347', '#ffcc33', '#ffe5b4', '#ffffff']; // 주황 캐릭터용 파티클
 
@@ -398,45 +588,55 @@
     function createParticle(x, y, colors) {
       const p = document.createElement('div');
       p.className = 'click-particle';
-      
+
       const color = colors[Math.floor(Math.random() * colors.length)];
       p.style.backgroundColor = color;
       p.style.left = x + 'px';
       p.style.top = y + 'px';
-      
+
       // 랜덤 방향 및 거리
       const angle = Math.random() * Math.PI * 2;
       const dist = 50 + Math.random() * 100;
       p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
       p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
-      
+
       document.body.appendChild(p);
       setTimeout(() => p.remove(), 600);
     }
 
-    // 고도화된 Distributed Parallax 트래킹 로직
     const pItems = document.querySelectorAll('.p-item');
     
+    // 아이템 각각의 위치를 기반으로 독립적인 패럴랙스 계산
     document.addEventListener('mousemove', (e) => {
-      const xRatio = (e.clientX / window.innerWidth - 0.5) * 2; // -1 to 1
-      const yRatio = (e.clientY / window.innerHeight - 0.5) * 2; // -1 to 1
-      
-      // 화면 중앙에서의 거리에 비례한 비선형 가중치 (중앙에선 은은하게, 가장자리에선 확실하게)
-      // Math.sign(xRatio) * Math.pow(Math.abs(xRatio), 0.8) 등으로 곡선 부여 가능
-      const curvedX = Math.sign(xRatio) * Math.pow(Math.abs(xRatio), 0.8);
-      const curvedY = Math.sign(yRatio) * Math.pow(Math.abs(yRatio), 0.8);
-      
       pItems.forEach(item => {
+        const rect = item.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        
+        // 해당 아이템의 중심으로부터 마우스의 상대 거리 계산 (-1 ~ 1 범위)
+        let dx = (e.clientX - centerX) / (window.innerWidth / 2);
+        let dy = (e.clientY - centerY) / (window.innerHeight / 2);
+        
+        // 임계값 제한
+        dx = Math.max(-1, Math.min(1, dx));
+        dy = Math.max(-1, Math.min(1, dy));
+
+        // Math.sin으로 중앙(아이템 중심)에서 변화가 크고 멀어질수록 완만한 "볼록한" 물리 효과
+        const curvedX = Math.sin(dx * Math.PI / 2);
+        const curvedY = Math.sin(dy * Math.PI / 2);
+
         const depth = parseFloat(item.dataset.depth || 1.0);
         
-        // 요소별 고유 Depth 가중치를 적용하여 개별적인 이동량 산출
-        const moveX = curvedX * -12 * depth; // 캐릭터 기준 최대 12px
-        const moveY = curvedY * -10 * depth; // 캐릭터 기준 최대 10px
+        // 개별 계산된 값을 기반으로 변위 적용 (회전 제거)
+        const moveX = curvedX * -30 * depth; 
+        const moveY = curvedY * -20 * depth; 
         
         item.style.transform = `translate(${moveX}px, ${moveY}px)`;
       });
     });
   </script>
 </body>
+
+</html>
 
 </html>

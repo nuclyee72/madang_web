@@ -13,13 +13,14 @@
   <style>
     @font-face {
       font-family: 'GyeonggiBatang';
-      src: url('/static/gyeonggi_batang_regular.ttf') format('truetype');
+      src: url('/static/gyeonggi_batang_regular.woff2') format('woff2');
       font-weight: normal;
       font-style: normal;
     }
+
     @font-face {
       font-family: 'GyeonggiTitle';
-      src: url('/static/gyeonggi_title_medium.ttf') format('truetype');
+      src: url('/static/gyeonggi_title_medium.woff2') format('woff2');
       font-weight: 500;
       font-style: normal;
     }
@@ -36,6 +37,7 @@
       overflow-y: scroll;
       overflow-x: hidden;
     }
+
     body {
       min-height: 100vh;
       font-family: 'GyeonggiBatang', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -44,21 +46,42 @@
       animation: slideUpEnter 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
 
-    h1, h2, h3, h4, h5, h6, .fc-toolbar-title {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .fc-toolbar-title {
       font-family: 'GyeonggiTitle', system-ui, -apple-system, sans-serif;
     }
 
     @keyframes slideUpEnter {
-      0% { transform: translateY(30px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
+      0% {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
 
     body.slide-down-exit {
       animation: slideDownExit 0.25s cubic-bezier(0.7, 0, 0.2, 1) forwards;
     }
+
     @keyframes slideDownExit {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(30px); opacity: 0; }
+      0% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(30px);
+        opacity: 0;
+      }
     }
 
     /* ── Header ── */
@@ -168,9 +191,15 @@
       border-color: #ccc !important;
       color: #333 !important;
       font-size: 13px !important;
-      padding: 4px 12px !important;
+      padding: 4px 6px !important;
       border-radius: 16px !important;
-      margin: 0 2px !important;
+      margin: 0 1px !important;
+      min-width: 58px !important; /* 너비 고정 */
+      text-align: center !important;
+      height: 28px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
 
     .fc-button-primary:hover {
@@ -181,7 +210,27 @@
       background-color: #e4ebff !important;
       border-color: #4f7dff !important;
       color: #1f3bb8 !important;
-      font-weight: 600 !important;
+      font-weight: 500 !important; /* 볼드체 제거 */
+    }
+
+    /* 툴바 레이아웃 고정 (중앙 정렬 유지) */
+    .fc-header-toolbar {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+    }
+    .fc-toolbar-chunk {
+      flex: 1 !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+    .fc-toolbar-chunk:nth-child(1) { justify-content: flex-start !important; }
+    .fc-toolbar-chunk:nth-child(2) { justify-content: center !important; }
+    .fc-toolbar-chunk:nth-child(3) { justify-content: flex-end !important; }
+    
+    .fc-toolbar-title {
+      font-size: 17px !important;
+      white-space: nowrap !important;
     }
 
     .fc-event {
@@ -302,7 +351,7 @@
         align-items: center;
         justify-content: space-between;
       }
-      
+
       .top-bar .header-right {
         gap: 6px;
       }
@@ -312,7 +361,8 @@
         margin-bottom: 0;
       }
 
-      .btn-link, .btn-primary {
+      .btn-link,
+      .btn-primary {
         font-size: 11px;
         padding: 0 10px;
         height: 26px;
@@ -334,14 +384,17 @@
         justify-content: space-between !important;
         margin-bottom: 10px !important;
       }
+
       .fc-toolbar-chunk {
         display: flex;
         align-items: center;
       }
+
       .fc-toolbar-title {
         font-size: 14px !important;
         white-space: nowrap;
       }
+
       .fc-button-primary {
         font-size: 10px !important;
         padding: 3px 6px !important;
@@ -353,9 +406,11 @@
         font-size: 11px !important;
         padding: 2px !important;
       }
+
       .fc-timegrid-slot-label-cushion {
         font-size: 10px !important;
       }
+
       .fc-daygrid-day-number {
         font-size: 11px !important;
       }
@@ -366,14 +421,17 @@
         padding: 0px 1px !important;
         line-height: 1.2 !important;
       }
+
       .fc-event-title {
         font-size: 10px !important;
         font-weight: 600 !important;
       }
+
       .fc-event-location {
         font-size: 9px !important;
         letter-spacing: -0.3px;
       }
+
       .fc-event-time {
         font-size: 9px !important;
       }
@@ -503,7 +561,8 @@
 
       <div class="form-group" style="margin-bottom: 12px;">
         <label>상세 설명</label>
-        <div id="detailDescription" style="color: var(--text-primary); font-size: 0.95rem; white-space: pre-wrap;"></div>
+        <div id="detailDescription" style="color: var(--text-primary); font-size: 0.95rem; white-space: pre-wrap;">
+        </div>
       </div>
 
       <div class="modal-actions">
@@ -515,7 +574,7 @@
   <script src="/static/script_schedule.js?v=6"></script>
   <script>
     document.querySelectorAll('a[href="/"]').forEach(link => {
-      link.addEventListener('click', function(e) {
+      link.addEventListener('click', function (e) {
         e.preventDefault();
         const target = this.getAttribute('href');
         document.body.classList.add('slide-down-exit');

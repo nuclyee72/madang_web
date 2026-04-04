@@ -1,13 +1,14 @@
 /* ==================== 폰트 설정 ==================== */
 @font-face {
   font-family: 'GyeonggiBatang';
-  src: url('/static/gyeonggi_batang_regular.ttf') format('truetype');
+  src: url('/static/gyeonggi_batang_regular.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
 }
+
 @font-face {
   font-family: 'GyeonggiTitle';
-  src: url('/static/gyeonggi_title_medium.ttf') format('truetype');
+  src: url('/static/gyeonggi_title_medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
 }
@@ -27,21 +28,41 @@ body {
   animation: slideUpEnter 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'GyeonggiTitle', system-ui, -apple-system, sans-serif;
 }
 
 @keyframes slideUpEnter {
-  0% { transform: translateY(30px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 body.slide-down-exit {
   animation: slideDownExit 0.25s cubic-bezier(0.7, 0, 0.2, 1) forwards;
 }
+
 @keyframes slideDownExit {
-  0% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(30px); opacity: 0; }
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
 }
 
 h1 {
@@ -99,7 +120,9 @@ section {
 }
 
 .view-switch-btn {
-  display: inline-flex; align-items: center; justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 13px;
   padding: 0 12px;
   border-radius: 16px;
@@ -133,7 +156,11 @@ section {
   height: 28px;
   transition: background 0.1s;
 }
-.btn-link:hover { background: #eee; color: #000; }
+
+.btn-link:hover {
+  background: #eee;
+  color: #000;
+}
 
 /* ==================== 공통 패널 스타일 ==================== */
 .form-panel,
@@ -217,7 +244,9 @@ section {
 }
 
 .form-panel button {
-  display: inline-flex; align-items: center; justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 13px;
   padding: 0 12px;
   border-radius: 16px;
@@ -227,8 +256,15 @@ section {
   height: 28px;
   transition: background 0.1s;
 }
-.form-panel button:hover { background: #eee; }
-#game-form button, #tournament-game-form button { margin-top: 8px; }
+
+.form-panel button:hover {
+  background: #eee;
+}
+
+#game-form button,
+#tournament-game-form button {
+  margin-top: 8px;
+}
 
 .form-row {
   display: flex;
