@@ -587,11 +587,60 @@ th.sortable.sorted-asc {
 }
 
 @media (max-width: 520px) {
+  /* 랭킹 테이블 컬럼 폭 축소 - 등수 분포 그래프 공간 확보 */
+  .ranking-table th:nth-child(1),
+  .ranking-table td:nth-child(1) {
+    width: 25px;
+  }
+
+  .ranking-table th:nth-child(2),
+  .ranking-table td:nth-child(2) {
+    width: 80px;
+  }
+
+  .ranking-table th:nth-child(3),
+  .ranking-table td:nth-child(3) {
+    width: 35px;
+  }
+
+  .ranking-table th:nth-child(4),
+  .ranking-table td:nth-child(4) {
+    width: 42px;
+  }
+
+  .ranking-table th:nth-child(5),
+  .ranking-table td:nth-child(5) {
+    width: 42px;
+  }
+
+  .ranking-table th:nth-child(6),
+  .ranking-table td:nth-child(6) {
+    width: 42px !important;
+  }
+
+  .ranking-table th,
+  .ranking-table td {
+    font-size: 11px;
+    padding: 2px 3px;
+  }
+
+  /* 테이블 최소 너비 보장 - 그래프 찌그러짐 방지 */
+  .ranking-table {
+    min-width: 500px;
+  }
+
+  .rank-dist-bar {
+    height: 16px !important; /* 모바일에서 조금 더 잘 보이도록 */
+  }
+
+  .rank-seg span {
+    font-size: 9px; /* 모바일에서 조금만 축소 */
+  }
 
   #season-ranking-table th,
   #season-ranking-table td {
-    font-size: 11px;
-    padding: 2px 3px;
+    font-size: 10px;
+    padding: 1px 2px;
   }
 
   .col-time-hide {

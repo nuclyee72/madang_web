@@ -98,7 +98,14 @@ function createRankDistBar(rankCounts, games) {
     seg.style.width = percentage.toFixed(1) + "%";
 
     const span = document.createElement("span");
-    span.textContent = count > 0 ? `${percentage.toFixed(0)}%` : "";
+    // 모바일 등에서 너비가 너무 좁으면 텍스트(%) 숨기기 (12% 미만)
+    if (percentage >= 12) {
+      span.textContent = `${percentage.toFixed(0)}%`;
+    } else {
+      span.textContent = "";
+    }
+    // 툴팁 추가 (길게 누르거나 호버 시 확인 가능)
+    seg.title = `${i + 1}등: ${count}회 (${percentage.toFixed(1)}%)`;
 
     seg.appendChild(span);
     bar.appendChild(seg);
