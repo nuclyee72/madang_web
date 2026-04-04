@@ -10,12 +10,15 @@
   <link rel="apple-touch-icon" href="/static/icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/static/icon.png">
   <link rel="manifest" href="/static/manifest.json">
+  <link rel="preload" href="/static/gyeonggi_batang_regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/gyeonggi_title_medium.woff2" as="font" type="font/woff2" crossorigin>
   <style>
     @font-face {
       font-family: 'GyeonggiBatang';
       src: url('/static/gyeonggi_batang_regular.woff2') format('woff2');
       font-weight: normal;
       font-style: normal;
+      font-display: swap;
     }
 
     @font-face {
@@ -23,6 +26,7 @@
       src: url('/static/gyeonggi_title_medium.woff2') format('woff2');
       font-weight: 500;
       font-style: normal;
+      font-display: swap;
     }
 
     *,
@@ -531,23 +535,23 @@
 
   <!-- Distributed Parallax Items (각기 다른 Depth 가중치 부여) -->
   <div class="p-item p-left-char" data-depth="1.0">
-    <img src="/static/left_char.png" class="standing-char char-left" alt="좌측 캐릭터">
+    <img src="/static/left_char.webp" class="standing-char char-left" alt="좌측 캐릭터">
   </div>
   <div class="p-item p-right-char" data-depth="1.0">
-    <img src="/static/right_char.png" class="standing-char char-right" alt="우측 캐릭터">
+    <img src="/static/right_char.webp" class="standing-char char-right" alt="우측 캐릭터">
   </div>
 
   <div class="p-item p-blue-1" data-depth="0.7">
-    <img src="/static/blue_1.png" class="decor-item decor-blue-1" alt="장식">
+    <img src="/static/blue_1.webp" class="decor-item decor-blue-1" alt="장식">
   </div>
   <div class="p-item p-blue-2" data-depth="0.4">
-    <img src="/static/blue_2.png" class="decor-item decor-blue-2" alt="장식">
+    <img src="/static/blue_2.webp" class="decor-item decor-blue-2" alt="장식">
   </div>
   <div class="p-item p-orange-1" data-depth="0.7">
-    <img src="/static/orange_1.png" class="decor-item decor-orange-1" alt="장식">
+    <img src="/static/orange_1.webp" class="decor-item decor-orange-1" alt="장식">
   </div>
   <div class="p-item p-orange-2" data-depth="0.4">
-    <img src="/static/orange_2.png" class="decor-item decor-orange-2" alt="장식">
+    <img src="/static/orange_2.webp" class="decor-item decor-orange-2" alt="장식">
   </div>
 
   <script>
