@@ -43,9 +43,10 @@
 
     body {
       min-height: 100vh;
+      padding: 0 16px 40px 16px; /* 좌우 여백 유지 */
+      box-sizing: border-box;
       font-family: 'GyeonggiBatang', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       color: #333;
-      padding-bottom: 40px;
       animation: slideUpEnter 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
 
@@ -197,7 +198,8 @@
       padding: 4px 6px !important;
       border-radius: 16px !important;
       margin: 0 1px !important;
-      min-width: 58px !important; /* 너비 고정 */
+      min-width: 58px !important;
+      /* 너비 고정 */
       text-align: center !important;
       height: 28px !important;
       display: inline-flex !important;
@@ -213,7 +215,8 @@
       background-color: #e4ebff !important;
       border-color: #4f7dff !important;
       color: #1f3bb8 !important;
-      font-weight: 500 !important; /* 볼드체 제거 */
+      font-weight: 500 !important;
+      /* 볼드체 제거 */
     }
 
     /* 툴바 레이아웃 고정 (중앙 정렬 유지) */
@@ -222,15 +225,25 @@
       justify-content: space-between !important;
       align-items: center !important;
     }
+
     .fc-toolbar-chunk {
       flex: 1 !important;
       display: flex !important;
       align-items: center !important;
     }
-    .fc-toolbar-chunk:nth-child(1) { justify-content: flex-start !important; }
-    .fc-toolbar-chunk:nth-child(2) { justify-content: center !important; }
-    .fc-toolbar-chunk:nth-child(3) { justify-content: flex-end !important; }
-    
+
+    .fc-toolbar-chunk:nth-child(1) {
+      justify-content: flex-start !important;
+    }
+
+    .fc-toolbar-chunk:nth-child(2) {
+      justify-content: center !important;
+    }
+
+    .fc-toolbar-chunk:nth-child(3) {
+      justify-content: flex-end !important;
+    }
+
     .fc-toolbar-title {
       font-size: 17px !important;
       white-space: nowrap !important;
@@ -261,6 +274,8 @@
       align-items: center;
       justify-content: center;
       z-index: 100;
+      padding: 0 16px;
+      /* 좌우 최소 여백 보호 */
     }
 
     .modal-overlay.active {
@@ -370,6 +385,23 @@
         padding: 0 10px;
         height: 26px;
       }
+    }
+
+    @media (max-width: 480px) {
+      .top-bar {
+        flex-direction: row;
+        /* 한 줄 유지 */
+        gap: 8px;
+        justify-content: space-between;
+      }
+
+      .top-bar .header-right {
+        justify-content: flex-end;
+        width: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
 
       .container {
         padding: 0 5px;
@@ -381,32 +413,55 @@
 
       /* 캘린더 툴바(상단 버튼, 제목) 모바일 최적화 */
       .fc-header-toolbar {
-        display: flex;
-        flex-wrap: nowrap !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        /* 줄바꿈 허용 */
         align-items: center;
         justify-content: space-between !important;
         margin-bottom: 10px !important;
+        gap: 6px;
       }
 
       .fc-toolbar-chunk {
         display: flex;
         align-items: center;
+        flex: 1 1 auto;
+        /* 유연한 너비 */
+      }
+
+      /* 제목(연/월)을 중앙 상단에 배치하고 가득 채우기 */
+      .fc-toolbar-chunk:nth-child(2) {
+        order: -1;
+        flex: 0 0 100% !important;
+        justify-content: center !important;
+        margin-bottom: 4px;
+      }
+
+      .fc-toolbar-chunk:nth-child(1) {
+        justify-content: flex-start !important;
+      }
+
+      .fc-toolbar-chunk:nth-child(3) {
+        justify-content: flex-end !important;
       }
 
       .fc-toolbar-title {
-        font-size: 14px !important;
+        font-size: 15px !important;
         white-space: nowrap;
       }
 
       .fc-button-primary {
-        font-size: 10px !important;
-        padding: 3px 6px !important;
+        font-size: 11px !important;
+        padding: 4px 8px !important;
         margin: 0 1px !important;
+        min-width: auto !important;
+        /* 고정 너비 해제 */
+        height: 26px !important;
       }
 
       /* 캘린더 내부 그리드 및 폰트 사이즈 최적화 */
       .fc-col-header-cell-cushion {
-        font-size: 11px !important;
+        font-size: 10px !important;
         padding: 2px !important;
       }
 

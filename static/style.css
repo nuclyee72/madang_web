@@ -23,6 +23,8 @@ html {
 body {
   max-width: 1100px;
   margin: 20px auto;
+  padding: 0 16px; /* 좌우 여백 추가 */
+  box-sizing: border-box;
   font-family: 'GyeonggiBatang', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 14px;
   animation: slideUpEnter 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
@@ -587,6 +589,7 @@ th.sortable.sorted-asc {
 }
 
 @media (max-width: 520px) {
+
   /* 랭킹 테이블 컬럼 폭 축소 - 등수 분포 그래프 공간 확보 */
   .ranking-table th:nth-child(1),
   .ranking-table td:nth-child(1) {
@@ -630,11 +633,13 @@ th.sortable.sorted-asc {
   }
 
   .rank-dist-bar {
-    height: 16px !important; /* 모바일에서 조금 더 잘 보이도록 */
+    height: 16px !important;
+    /* 모바일에서 조금 더 잘 보이도록 */
   }
 
   .rank-seg span {
-    font-size: 9px; /* 모바일에서 조금만 축소 */
+    font-size: 9px;
+    /* 모바일에서 조금만 축소 */
   }
 
   #season-ranking-table th,
@@ -1261,5 +1266,18 @@ textarea {
   .mobile-panel-tab.active {
     background: #4f7dff;
     transform: scale(1.35);
+  }
+
+  /* 입력 폼 모바일 최적화: 삐져나오는 문제 해결 */
+  #game-form .row,
+  #tournament-game-form .row {
+    grid-template-columns: 35px 1fr 100px;
+    gap: 6px;
+  }
+
+  #game-form input,
+  #tournament-game-form input {
+    padding: 6px 4px; /* 여백 조금 더 축소 */
+    font-size: 13px;
   }
 }
