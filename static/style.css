@@ -266,6 +266,20 @@ section {
 #game-form button,
 #tournament-game-form button {
   margin-top: 8px;
+  background-color: #4f7dff;
+  color: #fff !important; /* 글자 밝기 문제 해결을 위해 흰색 강제 적용 */
+  border: 1px solid #1f3bb8;
+  font-weight: 600;
+  border-radius: 18px;
+  padding: 0 16px;
+  height: 28px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+#game-form button:hover,
+#tournament-game-form button:hover {
+  background-color: #3166ff;
 }
 
 .form-row {
