@@ -118,7 +118,10 @@ async function submitSchedule(e) {
   
   const form = e.target;
   const formData = new FormData(form);
-  const data = Object.fromEntries(formData.entries());
+  const data = {};
+  formData.forEach((value, key) => {
+    data[key] = value;
+  });
 
   try {
     const response = await fetch('/schedule/api/request', {
@@ -127,16 +130,21 @@ async function submitSchedule(e) {
       body: JSON.stringify(data)
     });
 
-    const result = await response.json();
+    let result;
+    try {
+      result = await response.json();
+    } catch (parseErr) {
+      throw new Error("서버에서 올바르지 않은 응답을 보냈습니다. (JSON 파싱 오류)");
+    }
     
     if (response.ok) {
       alert("일정 신청이 완료되었습니다. 관리자 승인 후 캘린더에 표시됩니다.");
       closeModal();
     } else {
-      alert("오류: " + result.error);
+      alert("오류: " + (result.error || "알 수 없는 오류가 발생했습니다."));
     }
   } catch (err) {
-    alert("네트워크 오류가 발생했습니다.");
+    alert("오류가 발생했습니다: " + err.message);
     console.error(err);
   }
 }

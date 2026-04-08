@@ -152,6 +152,7 @@ def inject_club_name():
 
 CORS(app)
 init_db()
+init_schedule_db()
 
 # 마작 포인트 계산용 상수 (Moved to top)
 
@@ -1405,30 +1406,36 @@ def get_pending_schedules():
 
 @schedule_bp.route("/api/request", methods=["POST"])
 def request_schedule():
-    data = request.get_json() or {}
-    title = data.get("title", "").strip()
-    date = data.get("date", "").strip()
-    time_start = data.get("time_start", "").strip()
-    time_end = data.get("time_end", "").strip()
-    location = data.get("location", "").strip()
-    description = data.get("description", "").strip()
-    requester = data.get("requester_name", "").strip()
+    try:
+        data = request.get_json() or {}
+        title = data.get("title", "").strip()
+        date = data.get("date", "").strip()
+        time_start = data.get("time_start", "").strip()
+        time_end = data.get("time_end", "").strip()
+        location = data.get("location", "").strip()
+        description = data.get("description", "").strip()
+        requester = data.get("requester_name", "").strip()
 
-    if not title or not date or not requester:
-        return jsonify({"error": "Required fields: title, date, requester_name"}), 400
+        if not title or not date or not requester:
+            return jsonify({"error": "필수 입력 항목(제목, 날짜, 신청자 이름)이 누락되었습니다."}), 400
 
-    created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    conn = get_schedule_db()
-    conn.execute(
-        "INSERT INTO schedules (title, date, time_start, time_end, location, description, requester_name, status, created_at) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)",
-        (title, date, time_start, time_end, location, description, requester, created_at)
-    )
-    conn.commit()
-    conn.close()
+        conn = get_schedule_db()
+        try:
+            conn.execute(
+                "INSERT INTO schedules (title, date, time_start, time_end, location, description, requester_name, status, created_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)",
+                (title, date, time_start, time_end, location, description, requester, created_at)
+            )
+            conn.commit()
+        finally:
+            conn.close()
 
-    return jsonify({"ok": True, "message": "Schedule request submitted successfully."})
+        return jsonify({"ok": True, "message": "일정 신청이 완료되었습니다."})
+    except Exception as e:
+        print(f"Error in request_schedule: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @schedule_bp.route("/api/confirm/<int:schedule_id>", methods=["PUT"])
 def confirm_schedule(schedule_id):
