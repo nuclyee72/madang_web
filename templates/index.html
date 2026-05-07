@@ -26,7 +26,7 @@
 
   <!-- 커스텀 확인 모달 (confirm() 대체) -->
   <div id="confirm-modal"
-    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:9999; align-items:center; justify-content:center;">
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:9999; align-items:flex-start; justify-content:center; padding-top:15vh;">
     <div
       style="background:#fff; border-radius:12px; padding:24px 28px; max-width:340px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
       <p id="confirm-modal-text" style="margin:0 0 20px 0; font-size:14px; line-height:1.6; color:#333;"></p>
@@ -225,7 +225,7 @@
             </select>
           </div>
           <div id="stats-summary" class="stats-summary">
-            <p class="hint-text">왼쪽에서 플레이어를 선택하세요.</p>
+            <p class="hint-text">플레이어를 선택하세요</p>
           </div>
 
           <div id="stats-rank-section" style="display:none;">
@@ -237,7 +237,7 @@
             <hr class="stats-divider" style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
             <h3>보유 뱃지</h3>
             <div id="stats-badges" class="badge-list">
-              <p class="hint-text">플레이어를 선택하면 보유 뱃지가 표시됩니다.</p>
+              <p class="hint-text">플레이어를 선택하면 보유 뱃지가 표시됩니다</p>
             </div>
           </div>
         </section>
@@ -258,7 +258,7 @@
             <tbody id="stats-player-games-tbody">
               <tr>
                 <td colspan="5" class="ranking-placeholder">
-                  플레이어를 선택하면 기록이 표시됩니다.
+                  플레이어를 선택하면 기록이 표시됩니다
                 </td>
               </tr>
             </tbody>
@@ -440,7 +440,7 @@
             </select>
           </div>
           <p class="hint-text">
-            관리자 기능에서 CSV 파일을 업로드해 시즌 아카이브를 등록할 수 있습니다.
+            관리자 기능에서 CSV 파일을 업로드해 시즌 아카이브를 등록할 수 있습니다
           </p>
         </section>
 
@@ -619,15 +619,15 @@
           <section class="admin-panel">
             <h3>뱃지 CSV 백업 / 복원</h3>
             <div class="games-header-right">
-              <a href="/mahjong_rating/export_badges" class="export-link">뱃지 목록 CSV</a>
+              <a href="/mahjong_rating/export_badges" class="export-link">뱃지 목록 CSV 내보내기</a>
               <a href="/mahjong_rating/import_badges" class="import-link">뱃지 목록 업로드</a>
             </div>
             <div class="games-header-right" style="margin-top:6px;">
-              <a href="/mahjong_rating/export_player_badges" class="export-link">뱃지 부여 CSV</a>
+              <a href="/mahjong_rating/export_player_badges" class="export-link">뱃지 부여 CSV 내보내기</a>
               <a href="/mahjong_rating/import_player_badges" class="import-link">뱃지 부여 업로드</a>
             </div>
             <p class="hint-text" style="margin-top:6px;">
-              업로드는 “추가/갱신(뱃지)” + “추가(부여 목록, 중복 자동 스킵)” 방식입니다.
+              업로드는 기존 데이터를 모두 삭제하고 새로 덮어쓰는 “대체” 방식입니다.
             </p>
           </section>
 
@@ -639,45 +639,17 @@
                 <th>이름</th>
                 <th>등급</th>
                 <th>설명</th>
-                <th></th>
               </tr>
             </thead>
             <tbody id="badge-list-tbody">
               <tr>
-                <td colspan="5" class="ranking-placeholder">등록된 뱃지가 없습니다.</td>
+                <td colspan="4" class="ranking-placeholder">등록된 뱃지가 없습니다.</td>
               </tr>
             </tbody>
           </table>
         </section>
 
-        <section class="admin-panel">
-          <h3>새 뱃지 추가</h3>
-          <form id="badge-create-form" autocomplete="off">
-            <div class="form-row">
-              <label>코드</label>
-              <input type="number" name="code" placeholder="예: 1001" required>
-            </div>
-            <div class="form-row">
-              <label>이름</label>
-              <input type="text" name="name" placeholder="뱃지 이름" required>
-            </div>
-            <div class="form-row">
-              <label>등급</label>
-              <select name="grade" required>
-                <option value="플래티넘">플래티넘</option>
-                <option value="골드">골드</option>
-                <option value="실버">실버</option>
-                <option value="브론즈">브론즈</option>
-                <option value="기타">기타</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <label>설명</label>
-              <input type="text" name="description" placeholder="예: 시즌1 pt 1등">
-            </div>
-            <button type="submit">추가</button>
-          </form>
-        </section>
+
 
         <section class="admin-panel">
           <h3>아카이브 생성 (CSV 업로드)</h3>
@@ -685,7 +657,7 @@
             한 시즌의 대국 기록이 담긴 CSV 파일을 업로드하면<br>
             새 아카이브로 저장됩니다. (형식은 /export 로 받은 CSV와 동일하면 편해요.)
           </p>
-          <form id="archive-upload-form" method="post" action="/admin/archive_import" enctype="multipart/form-data"
+          <form id="archive-upload-form" method="post" action="{{ url_for('mahjong.admin_archive_import') }}" enctype="multipart/form-data"
             autocomplete="off">
             <div class="form-row">
               <label>아카이브 이름</label>
@@ -720,33 +692,7 @@
       </div>
 
       <div class="right-panel">
-        <section class="admin-panel">
-          <h2>플레이어 뱃지 관리</h2>
-          <div class="admin-player-select">
-            <input type="text" id="admin-player-name" placeholder="플레이어 이름 입력">
-            <button id="admin-load-player">불러오기</button>
-          </div>
-          <div id="admin-player-badges" class="badge-list">
-            <p class="hint-text">플레이어 이름을 입력하고 '불러오기'를 눌러주세요.</p>
-          </div>
-        </section>
 
-        <section class="admin-panel">
-          <h3>뱃지 부여</h3>
-          <form id="badge-assign-form" autocomplete="off">
-            <div class="form-row">
-              <label>플레이어</label>
-              <input type="text" id="badge-assign-player" name="player_name" placeholder="플레이어 이름" required>
-            </div>
-            <div class="form-row">
-              <label>뱃지 코드</label>
-              <select id="badge-assign-code" name="badge_code" required>
-                <option value="">뱃지를 선택하세요</option>
-              </select>
-            </div>
-            <button type="submit">부여</button>
-          </form>
-        </section>
 
         <section class="admin-panel">
           <h3>개인전 기록 초기화</h3>

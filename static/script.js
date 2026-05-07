@@ -1580,48 +1580,7 @@ function renderSeasonRankingTable() {
 // ======================= 관리자 =======================
 
 function setupAdminView() {
-  // 뱃지 추가
-  const cf = document.getElementById("badge-create-form");
-  if (cf) {
-    cf.addEventListener("submit", async e => {
-      e.preventDefault();
-      const fd = new FormData(cf);
-      try {
-        await fetchJSON(`${API_BASE}/api/badges`, {
-          method: "POST", body: JSON.stringify({
-            code: Number(fd.get("code")),
-            name: fd.get("name"), grade: fd.get("grade"), description: fd.get("description")
-          })
-        });
-        cf.reset();
-        reloadBadgeList();
-      } catch (e) { alert("추가 실패"); }
-    });
-  }
 
-  // 플레이어 뱃지 불러오기
-  const lb = document.getElementById("admin-load-player");
-  if (lb) {
-    lb.addEventListener("click", () => loadAdminPlayerBadges(document.getElementById("admin-player-name").value));
-  }
-
-  // 뱃지 부여
-  const af = document.getElementById("badge-assign-form");
-  if (af) {
-    af.addEventListener("submit", async e => {
-      e.preventDefault();
-      const fd = new FormData(af);
-      try {
-        await fetchJSON(`${API_BASE}/api/player_badges`, {
-          method: "POST", body: JSON.stringify({
-            player_name: fd.get("player_name"), badge_code: Number(fd.get("badge_code"))
-          })
-        });
-        loadAdminPlayerBadges(fd.get("player_name"));
-        rebuildStatsPlayerList();
-      } catch (e) { alert("부여 실패"); }
-    });
-  }
 
   // 초기화
   const rsb = document.getElementById("reset-games-btn");
@@ -1654,96 +1613,56 @@ async function reloadBadgeList() {
   const tbody = document.getElementById("badge-list-tbody");
   if (tbody) {
     tbody.innerHTML = "";
-    badges.forEach((b, bi) => {
-      const tr = document.createElement("tr");
-      tr.className = ""
-      tr.innerHTML = `<td>${b.code}</td><td>${b.name}</td><td>${b.grade}</td><td>${b.description || ""}</td><td></td>`;
-      const btn = document.createElement("button");
-      btn.textContent = "삭제";
-      btn.onclick = () => {
-        showConfirm("삭제??", async () => { await fetchJSON(`${API_BASE}/api/badges/${b.id}`, { method: "DELETE" }); reloadBadgeList(); });
-      };
-      tr.children[4].appendChild(btn);
-      tbody.appendChild(tr);
-    });
-  }
+    if (badges.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="ranking-placeholder">등록된 뱃지가 없습니다.</td></tr>';
+      return;
+    }
 
-  // Select
-  const sel = document.getElementById("badge-assign-code");
-  if (sel) {
-    const prev = sel.value;
-    sel.innerHTML = '<option value="">뱃지 선택</option>';
+    const groups = {};
     badges.forEach(b => {
-      const opt = document.createElement("option");
-      opt.value = b.code;
-      opt.textContent = `${b.name} (${b.grade})`;
-      sel.appendChild(opt);
+      const groupKey = Math.floor(b.code / 100) * 100;
+      if (!groups[groupKey]) groups[groupKey] = [];
+      groups[groupKey].push(b);
     });
-    if (prev) sel.value = prev;
-  }
-}
 
-async function loadAdminPlayerBadges(name) {
-  const listDiv = document.getElementById("admin-player-badges");
-  const assignInput = document.getElementById("badge-assign-player");
-  if (!listDiv) return;
+    const sortedGroups = Object.keys(groups).map(Number).sort((a, b) => a - b);
 
-  listDiv.innerHTML = "";
-  if (assignInput && name) assignInput.value = name;
+    sortedGroups.forEach(groupStart => {
+      const groupEnd = groupStart + 99;
+      const groupBadges = groups[groupStart];
+      
+      const headerTr = document.createElement("tr");
+      headerTr.style.cursor = "pointer";
+      headerTr.innerHTML = `
+        <td colspan="4" style="text-align: left; font-weight: 600; padding: 12px 16px; background-color: rgba(0,0,0,0.03);">
+          <span class="toggle-icon" style="display:inline-block; width:20px; text-align:center;">▶</span>
+          ${groupStart} ~ ${groupEnd} <span style="font-size:0.9em; color:#666; margin-left:8px;">(${groupBadges.length}개)</span>
+        </td>
+      `;
+      tbody.appendChild(headerTr);
 
-  if (!name) { listDiv.innerHTML = '<p class="hint-text">플레이어 이름을 입력하고 "불러오기"를 누르세요.</p>'; return; }
+      const rows = [];
+      groupBadges.forEach(b => {
+        const tr = document.createElement("tr");
+        tr.style.display = 'none';
+        tr.innerHTML = `<td>${b.code}</td><td>${b.name}</td><td>${b.grade}</td><td>${b.description || ""}</td>`;
+        tbody.appendChild(tr);
+        rows.push(tr);
+      });
 
-  try {
-    const list = await fetchJSON(`${API_BASE}/api/player_badges/by_player/${encodeURIComponent(name)}`);
-    if (!list.length) { listDiv.innerHTML = '<p class="hint-text">보유한 뱃지가 없습니다.</p>'; return; }
-
-    const wrapper = document.createElement("div");
-    wrapper.className = "badge-list-inner";
-
-    list.forEach(pb => {
-      const chip = document.createElement("div");
-      chip.className = `badge-chip badge-grade-${pb.grade}`;
-
-      const topRow = document.createElement("div");
-      topRow.className = "badge-top-row";
-
-      const main = document.createElement("div");
-      main.className = "badge-main";
-      main.innerHTML = `<span class="badge-code">#${pb.code}</span> ${pb.name}`;
-
-      const btn = document.createElement("button");
-      btn.textContent = "삭제";
-      btn.onclick = async () => {
-        showConfirm("이 뱃지를 제거할까요?", async () => {
-          await fetchJSON(`${API_BASE}/api/player_badges/${pb.id}`, { method: "DELETE" });
-          loadAdminPlayerBadges(name);
-          rebuildStatsPlayerList();
-          // If stats view is selected, update it
-          const s = document.getElementById("stats-player-select");
-          if (s && s.value === name) loadPlayerBadgesForStats(name);
-        });
+      let isOpen = false;
+      headerTr.onclick = () => {
+        isOpen = !isOpen;
+        headerTr.querySelector('.toggle-icon').textContent = isOpen ? '▼' : '▶';
+        rows.forEach(r => r.style.display = isOpen ? '' : 'none');
       };
-
-      topRow.appendChild(main);
-      topRow.appendChild(btn);
-      chip.appendChild(topRow);
-
-      if (pb.description) {
-        const desc = document.createElement("div");
-        desc.className = "badge-desc";
-        desc.textContent = pb.description;
-        chip.appendChild(desc);
-      }
-
-      wrapper.appendChild(chip);
     });
-    listDiv.appendChild(wrapper);
-
-  } catch (e) {
-    console.error(e);
-    listDiv.innerHTML = '<p class="hint-text">뱃지를 불러오지 못했습니다.</p>';
   }
+
+
 }
+
+
 
 // ==========================================
 // 그래프 관련 로직 (Daily Stats Graph)

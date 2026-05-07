@@ -763,6 +763,7 @@ def import_badges():
         return default
 
     conn = get_db()
+    conn.execute("DELETE FROM badges")
     inserted = 0
     updated = 0
 
@@ -917,6 +918,7 @@ def import_player_badges():
         return default
 
     conn = get_db()
+    conn.execute("DELETE FROM player_badges")
     inserted = 0
     skipped = 0
 
