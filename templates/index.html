@@ -631,22 +631,34 @@
             </p>
           </section>
 
-          <h2>뱃지 목록</h2>
-          <table class="badge-table">
-            <thead>
-              <tr>
-                <th>코드</th>
-                <th>이름</th>
-                <th>등급</th>
-                <th>설명</th>
-              </tr>
-            </thead>
-            <tbody id="badge-list-tbody">
-              <tr>
-                <td colspan="4" class="ranking-placeholder">등록된 뱃지가 없습니다.</td>
-              </tr>
-            </tbody>
-          </table>
+          <h2 style="cursor:pointer; user-select:none;" onclick="
+            const t = document.getElementById('badge-table-container');
+            const i = document.getElementById('badge-title-icon');
+            if (t.style.display === 'none') {
+              t.style.display = '';
+              i.textContent = '▼';
+            } else {
+              t.style.display = 'none';
+              i.textContent = '▶';
+            }
+          "><span id="badge-title-icon" style="display:inline-block; width:20px; font-size:18px;">▶</span>뱃지 목록</h2>
+          <div id="badge-table-container" style="display:none;">
+            <table class="badge-table">
+              <thead>
+                <tr>
+                  <th>코드</th>
+                  <th>이름</th>
+                  <th>등급</th>
+                  <th>설명</th>
+                </tr>
+              </thead>
+              <tbody id="badge-list-tbody">
+                <tr>
+                  <td colspan="4" class="ranking-placeholder">등록된 뱃지가 없습니다.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
 
 
