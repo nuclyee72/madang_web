@@ -228,7 +228,10 @@
 
           <div id="stats-rank-section" style="display:none;">
             <hr class="stats-divider" style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
-            <h3>총 등수 통계</h3>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+              <h3 style="margin: 0;">총 등수 통계</h3>
+              <span id="stats-avg-rank" style="font-weight: normal; font-size: 0.85em; color: #666;">평균 등수: -</span>
+            </div>
             <div id="stats-rank-dist" class="stats-rank-dist"></div>
             <div id="stats-rank-numbers" class="stats-rank-numbers"></div>
 
@@ -527,7 +530,10 @@
 
               <div id="archive-stats-rank-section" style="display:none;">
                 <hr class="stats-divider" style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
-                <h3>등수 분포</h3>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                  <h3 style="margin: 0;">등수 분포</h3>
+                  <span id="archive-stats-avg-rank" style="font-weight: normal; font-size: 0.85em; color: #666;">평균 등수: -</span>
+                </div>
                 <div id="archive-stats-rank-dist" class="stats-rank-dist"></div>
               </div>
             </section>
