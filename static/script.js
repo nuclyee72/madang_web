@@ -5,7 +5,7 @@ const RETURN_SCORE = (window.GAME_CONFIG && window.GAME_CONFIG.return_score) ? N
 
 // 전체 게임 / 플레이어 요약 캐시 (통계 화면용)
 let ALL_GAMES = [];
-let PLAYER_SUMMARY = [];       // ✅ 개인 레이팅 표(4판 이상) 전용
+let PLAYER_SUMMARY = [];       // ✅ 개인 레이팅 표(4국 이상) 전용
 let PLAYER_SUMMARY_ALL = [];   // ✅ 게임 기준 전체 플레이어(필터 전)
 let STATS_PLAYER_LIST = [];    // ✅ 개인별 통계 셀렉트 전용(뱃지 포함)
 
@@ -13,7 +13,7 @@ let ALL_BADGES = [];
 
 let RANKING_VIEW_MODE = "pt"; // "pt" | "season"
 let TOURNAMENT_STATS = {};    // { [name]: { games, sumPosPt } }
-let SEASON_SUMMARY = [];      // 시즌 점수용 표 데이터
+let SEASON_SUMMARY = [];      // 시즌 pt용 표 데이터
 
 let ARCHIVE_VIEW_MODE = "ranking"; // "ranking" | "stats"
 let archiveStatsChart = null; // 아카이브 개인 통계용 차트
@@ -41,7 +41,7 @@ let SEASON_TOURNAMENT_STATS = null; // { [name]: { joinCount, ptSum } }
 
 // ======================= 유틸리티 함수 =======================
 
-// 포인트 계산
+// pt 계산
 function calcPts(scores) {
   const order = scores
     .map((s, i) => ({ s, i }))
@@ -155,7 +155,7 @@ function sortPlayersByState(list, sortState) {
   return arr;
 }
 
-// 시즌 점수 계산 (공통)
+// 시즌 pt 계산 (공통)
 function calculateSeasonScore(totalPt, games, tJoin, tSum) {
   const totalPtScore = 500 * (2 / Math.PI) * Math.atan(totalPt / 250);
   const gamesScore = 200 * (1 - Math.pow(0.95, games));
@@ -175,7 +175,7 @@ function renderGameList(tbodyId, games, options = {}) {
 
   tbody.innerHTML = "";
   if (!games || games.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="ranking-placeholder">기록이 없습니다.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="ranking-placeholder">기록 없음</td></tr>';
     return;
   }
 
@@ -285,7 +285,7 @@ function calculateStatsFromGames(games) {
 
 
 // 3. 랭킹 테이블 렌더링
-function renderRankingTable(tbodyId, players, sortState, tableIdForIndicators, emptyMsg = "통계가 없습니다.") {
+function renderRankingTable(tbodyId, players, sortState, tableIdForIndicators, emptyMsg = "통계 없음") {
   const tbody = document.getElementById(tbodyId);
   if (!tbody) return;
 
@@ -439,7 +439,7 @@ function renderMainRanking() {
   // Title Update
   if (title) {
     if (RANKING_VIEW_MODE === "pt") title.textContent = "전체 등수";
-    else if (RANKING_VIEW_MODE === "season") title.textContent = "시즌 점수";
+    else if (RANKING_VIEW_MODE === "season") title.textContent = "시즌 pt";
     else if (RANKING_VIEW_MODE === "population") title.textContent = "전체 인원 변동";
   }
 
@@ -474,7 +474,7 @@ function setupPersonalForm() {
     const s3 = parseInt(fd.get("player3_score"), 10);
     const s4 = parseInt(fd.get("player4_score"), 10);
 
-    if ([s1, s2, s3, s4].some(Number.isNaN)) return alert("점수는 숫자여야 합니다.");
+    if ([s1, s2, s3, s4].some(Number.isNaN)) return alert("pt는 숫자여야 합니다.");
     if (s1 + s2 + s3 + s4 !== 100000) return alert(`합 100000이 아닙니다. (현재: ${s1 + s2 + s3 + s4})`);
 
     const payload = {
@@ -508,7 +508,7 @@ async function loadGamesAndRanking() {
   // 1. 대국 기록 렌더링
   renderGameList("games-tbody", games, {
     onDelete: (id) => {
-      showConfirm("이 판을 삭제할까요?", async () => {
+      showConfirm("이 대국을 삭제할까요?", async () => {
         try {
           await fetchJSON(`${API_BASE}/api/games/${id}`, { method: "DELETE" });
           await loadGamesAndRanking();
@@ -520,15 +520,15 @@ async function loadGamesAndRanking() {
   // 2. 플레이어 통계 계산
   const players = calculateStatsFromGames(games);
   PLAYER_SUMMARY_ALL = players;
-  PLAYER_SUMMARY = players.filter((p) => (p.games || 0) >= 4); // 4판 이상
+  PLAYER_SUMMARY = players.filter((p) => (p.games || 0) >= 4); // 4국 이상
 
-  // 3. 대회 데이터 로드 (시즌 점수용)
+  // 3. 대회 데이터 로드 (시즌 pt용)
   try {
     const tg = await fetchJSON(`${API_BASE}/api/tournament_games`);
     TOURNAMENT_GAMES = tg || [];
   } catch (e) { console.warn(e); TOURNAMENT_GAMES = []; }
 
-  // 4. 시즌 점수 계산
+  // 4. 시즌 pt 계산
   SEASON_SUMMARY = await buildSeasonSummary(PLAYER_SUMMARY_ALL);
 
   // 5. 랭킹 렌더링
@@ -584,7 +584,7 @@ function updateStatsPlayerSelect() {
   list.forEach(p => {
     const opt = document.createElement("option");
     opt.value = p.name;
-    if (p.games > 0) opt.textContent = `${p.name} (${p.games}판, ${p.total_pt.toFixed(1)}pt)`;
+    if (p.games > 0) opt.textContent = `${p.name} (${p.games}국, ${p.total_pt.toFixed(1)}pt)`;
     else opt.textContent = `${p.name}`;
     select.appendChild(opt);
   });
@@ -699,7 +699,7 @@ function renderStatsForPlayer(name) {
 
   renderHistoryGraph(name, "week"); // Render graph (default: 1 week)
 
-  // 하위 차트(등수 및 포인트 추이) - 버튼 초기화 후 기본 10판으로 렌더
+  // 하위 차트(등수 및 pt 추이) - 버튼 초기화 후 기본 10국으로 렌더
   document.querySelectorAll('.combined-filter-btn').forEach(b => b.classList.remove('active'));
   const defaultCombinedBtn = document.querySelector('.combined-filter-btn[data-limit="10"]');
   if (defaultCombinedBtn) defaultCombinedBtn.classList.add('active');
@@ -712,11 +712,11 @@ function renderStatsForPlayer(name) {
   summaryDiv.innerHTML = `
         <div class="stats-summary-main">
           <div><span class="stats-label">플레이어</span> <span class="stats-value">${name}</span></div>
-          <div><span class="stats-label">게임 수</span> <span class="stats-value">${detail.games}</span></div>
+          <div><span class="stats-label">대국 수</span> <span class="stats-value">${detail.games}</span></div>
           <div><span class="stats-label">총 pt</span> <span class="stats-value">${detail.total_pt.toFixed(1)}</span></div>
           <div><span class="stats-label">연대율</span> <span class="stats-value">${detail.yonde_rate.toFixed(1)}%</span></div>
           <div><span class="stats-label">토비율</span> <span class="stats-value">${detail.tobi_rate.toFixed(1)}% (${detail.tobi_count}회)</span></div>
-          <div><span class="stats-label">최다 점수</span> <span class="stats-value">${detail.max_score}</span></div>
+          <div><span class="stats-label">최다 pt</span> <span class="stats-value">${detail.max_score}</span></div>
         </div>
     `;
 
@@ -736,7 +736,7 @@ function renderStatsForPlayer(name) {
       coTbody.appendChild(tr);
     });
   } else {
-    coTbody.innerHTML = '<tr><td colspan="4" class="ranking-placeholder">함께 친 기사가 없음</td></tr>';
+    coTbody.innerHTML = '<tr><td colspan="4" class="ranking-placeholder">데이터 없음</td></tr>';
   }
 
   // Game Records
@@ -881,7 +881,7 @@ function updateArchiveStatsPlayerSelect() {
   sorted.forEach(p => {
     const opt = document.createElement("option");
     opt.value = p.name;
-    opt.textContent = `${p.name} (${p.games}판, ${p.total_pt.toFixed(1)}pt)`;
+    opt.textContent = `${p.name} (${p.games}국, ${p.total_pt.toFixed(1)}pt)`;
     select.appendChild(opt);
   });
 
@@ -1139,7 +1139,7 @@ function renderArchiveHistoryGraph(name, range = "week") {
     options: {
       responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
       scales: {
-        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: '점수 / pt' } },
+        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'pt' } },
         y1: { type: 'linear', display: true, position: 'right', reverse: true, min: 1, max: maxRank, ticks: { stepSize: 1, precision: 0 }, title: { display: true, text: '등수' }, grid: { drawOnChartArea: false } }
       }
     }
@@ -1177,7 +1177,7 @@ function updateArchivePlayerSelect() {
   sorted.forEach(p => {
     const opt = document.createElement("option");
     opt.value = p.name;
-    opt.textContent = `${p.name} (${p.games}판, ${p.total_pt.toFixed(1)}pt)`;
+    opt.textContent = `${p.name} (${p.games}국, ${p.total_pt.toFixed(1)}pt)`;
     select.appendChild(opt);
   });
 
@@ -1241,7 +1241,7 @@ async function reloadArchiveList() {
 async function loadArchiveGames(id) {
   if (!id) {
     renderGameList("archive-games-tbody", [], { useIndexNumbering: true });
-    renderRankingTable("archive-ranking-tbody", [], ARCHIVE_RANKING_SORT, "archive-ranking-table", "아카이브를 선택하세요.");
+    renderRankingTable("archive-ranking-tbody", [], ARCHIVE_RANKING_SORT, "archive-ranking-table", "아카이브 없음");
     CURRENT_ARCHIVE_GAMES = [];
     ARCHIVE_PLAYER_SUMMARY = [];
     ARCHIVE_VIEW_MODE = "ranking"; // 초기화
@@ -1318,7 +1318,7 @@ function renderArchiveStatsForPlayer(name) {
   // Render graph (전체 데이터)
   renderArchiveHistoryGraph(name, "week");
 
-  // 하위 차트(등수 및 포인트 추이) - 버튼 초기화 후 기본 10판으로 렌더
+  // 하위 차트(등수 및 pt 추이) - 버튼 초기화 후 기본 10국으로 렌더
   document.querySelectorAll('.archive-combined-filter-btn').forEach(b => b.classList.remove('active'));
   const defaultArchiveCombinedBtn = document.querySelector('.archive-combined-filter-btn[data-limit="10"]');
   if (defaultArchiveCombinedBtn) defaultArchiveCombinedBtn.classList.add('active');
@@ -1331,11 +1331,11 @@ function renderArchiveStatsForPlayer(name) {
   summaryDiv.innerHTML = `
     <div class="stats-summary-main">
       <div><span class="stats-label">플레이어</span> <span class="stats-value">${name}</span></div>
-      <div><span class="stats-label">게임 수</span> <span class="stats-value">${detail.games}</span></div>
+      <div><span class="stats-label">대국 수</span> <span class="stats-value">${detail.games}</span></div>
       <div><span class="stats-label">총 pt</span> <span class="stats-value">${detail.total_pt.toFixed(1)}</span></div>
       <div><span class="stats-label">연대율</span> <span class="stats-value">${detail.yonde_rate.toFixed(1)}%</span></div>
       <div><span class="stats-label">토비율</span> <span class="stats-value">${detail.tobi_rate.toFixed(1)}% (${detail.tobi_count}회)</span></div>
-      <div><span class="stats-label">최다 점수</span> <span class="stats-value">${detail.max_score}</span></div>
+      <div><span class="stats-label">최다 pt</span> <span class="stats-value">${detail.max_score}</span></div>
     </div>
   `;
 
@@ -1356,7 +1356,7 @@ function renderArchiveStatsForPlayer(name) {
         coTbody.appendChild(tr);
       });
     } else {
-      coTbody.innerHTML = '<tr><td colspan="4" class="ranking-placeholder">함께 친 기사가 없음</td></tr>';
+      coTbody.innerHTML = '<tr><td colspan="4" class="ranking-placeholder">데이터 없음</td></tr>';
     }
   }
 
@@ -1409,7 +1409,7 @@ function setupTournamentForm() {
     const s3 = parseInt(fd.get("player3_score"), 10);
     const s4 = parseInt(fd.get("player4_score"), 10);
 
-    if ([s1, s2, s3, s4].some(Number.isNaN) || (s1 + s2 + s3 + s4 !== 100000)) return alert("점수 오류");
+    if ([s1, s2, s3, s4].some(Number.isNaN) || (s1 + s2 + s3 + s4 !== 100000)) return alert("pt 오류");
 
     try {
       await fetchJSON(`${API_BASE}/api/tournament_games`, {
@@ -1444,7 +1444,7 @@ async function loadTournamentGamesAndRanking() {
 }
 
 
-// ======================= 시즌 점수 관련 =======================
+// ======================= 시즌 pt 관련 =======================
 
 function setupRankingTitleToggle() {
   const title = document.getElementById("ranking-title");
@@ -1464,7 +1464,7 @@ function renderMainRanking() {
 
   // Title Update
   if (title) {
-    title.textContent = RANKING_VIEW_MODE === "season" ? "시즌 점수" : "전체 등수";
+    title.textContent = RANKING_VIEW_MODE === "season" ? "시즌 pt" : "전체 등수";
   }
 
   // Legend Toggle
@@ -1614,7 +1614,7 @@ async function reloadBadgeList() {
   if (tbody) {
     tbody.innerHTML = "";
     if (badges.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" class="ranking-placeholder">등록된 뱃지가 없습니다.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" class="ranking-placeholder">뱃지 없음</td></tr>';
       return;
     }
 
@@ -1869,7 +1869,7 @@ function renderHistoryGraph(targetName, range) {
           pointRadius: 3
         },
         {
-          label: '시즌 점수',
+          label: '시즌 pt',
           data: data.map(h => h.season_score),
           borderColor: '#4dd2a6',
           backgroundColor: '#4dd2a6',
@@ -1911,7 +1911,7 @@ function renderHistoryGraph(targetName, range) {
           type: 'linear',
           display: true,
           position: 'left',
-          title: { display: true, text: '점수 / pt' }
+          title: { display: true, text: 'pt' }
         },
         y1: {
           type: 'linear',
@@ -1940,7 +1940,7 @@ function renderHistoryGraph(targetName, range) {
   });
 }
 
-// ======================= 게임 ID별 포인트 차트 =======================
+// ======================= 게임 ID별 pt 차트 =======================
 
 let statsGameIdPtChart = null;
 
@@ -1967,7 +1967,7 @@ function renderGameIdPtChart(targetName, limit = 10) {
 
   if (myGames.length === 0) return;
 
-  // limit=0이면 전체, 아니면 최근 N판
+  // limit=0이면 전체, 아니면 최근 N국
   const sliced = (limit > 0) ? myGames.slice(-limit) : myGames;
 
   const labels = [];     // 게임 ID
@@ -2103,11 +2103,11 @@ function setupChartFilters() {
 
 
 
-// 전체 플레이어 점수 그래프 렌더링
+// 전체 플레이어 pt 그래프 렌더링
 
 
 // ==========================================
-// 최근 등수 추이 그래프 (10/20/50판)
+// 최근 등수 추이 그래프 (10/20/50국)
 // ==========================================
 
 let rankTrendChart = null;

@@ -76,22 +76,22 @@
             <div class="row">
               <label>P1(동)</label>
               <input name="player1_name" placeholder="플레이어 1 이름" required>
-              <input name="player1_score" type="text" placeholder="점수" required>
+              <input name="player1_score" type="text" placeholder="pt" required>
             </div>
             <div class="row">
               <label>P2(남)</label>
               <input name="player2_name" placeholder="플레이어 2 이름" required>
-              <input name="player2_score" type="text" placeholder="점수" required>
+              <input name="player2_score" type="text" placeholder="pt" required>
             </div>
             <div class="row">
               <label>P3(서)</label>
               <input name="player3_name" placeholder="플레이어 3 이름" required>
-              <input name="player3_score" type="text" placeholder="점수" required>
+              <input name="player3_score" type="text" placeholder="pt" required>
             </div>
             <div class="row">
               <label>P4(북)</label>
               <input name="player4_name" placeholder="플레이어 4 이름" required>
-              <input name="player4_score" type="text" placeholder="점수" required>
+              <input name="player4_score" type="text" placeholder="pt" required>
             </div>
             <button type="submit">저장</button>
           </form>
@@ -103,7 +103,7 @@
             <h2>대국 기록</h2>
             <div class="games-header-right">
               <a href="/mahjong_rating/export" class="export-link">CSV 내보내기</a>
-              <a href="/mahjong_rating/import" class="import-link">CSV 업로드</a>
+              <a href="/mahjong_rating/import" class="import-link">CSV 가져오기</a>
             </div>
           </div>
 
@@ -143,7 +143,7 @@
       <div class="right-panel">
         <section class="ranking-panel">
           <div class="ranking-header">
-            <h2 id="ranking-title" class="ranking-title" title="클릭하면 시즌 점수로 바뀝니다">전체 등수</h2>
+            <h2 id="ranking-title" class="ranking-title" title="클릭하면 시즌 pt로 바뀝니다">전체 등수</h2>
             <div class="rank-legend">
               <span class="legend-color legend1"></span><span class="legend-text">1등</span>
               <span class="legend-color legend2"></span><span class="legend-text">2등</span>
@@ -160,7 +160,7 @@
                     <th>순위</th>
                     <th>이름</th>
                     <th class="sortable" data-sort-key="games">
-                      게임 수
+                      대국 수
                     </th>
                     <th class="sortable" data-sort-key="total_pt">
                       총 pt
@@ -183,7 +183,7 @@
             </div>
           </div>
 
-          <!-- ✅ (B) 신규: 시즌 점수 표 (처음엔 숨김) -->
+          <!-- ✅ (B) 신규: 시즌 pt 표 (처음엔 숨김) -->
           <div id="ranking-season-wrap" style="display:none;">
             <div class="table-scroll">
               <table id="season-ranking-table" class="ranking-table">
@@ -192,9 +192,9 @@
                     <th>순위</th>
                     <th>이름</th>
                     <th>총 pt 변환</th>
-                    <th>게임 수 변환</th>
+                    <th>대국 수 변환</th>
                     <th>대회 총 변환</th>
-                    <th>시즌 점수</th>
+                    <th>시즌 pt</th>
                   </tr>
                 </thead>
                 <tbody id="season-ranking-tbody"></tbody>
@@ -237,7 +237,7 @@
             <hr class="stats-divider" style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
             <h3>보유 뱃지</h3>
             <div id="stats-badges" class="badge-list">
-              <p class="hint-text">플레이어를 선택하면 보유 뱃지가 표시됩니다</p>
+              <p class="hint-text">뱃지 없음</p>
             </div>
           </div>
         </section>
@@ -269,11 +269,11 @@
       <div class="right-panel">
         <section id="stats-daily-section" class="stats-panel" style="display:none;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-            <h3 style="margin: 0;">최근 경기 이력 (등수 및 포인트)</h3>
+            <h3 style="margin: 0;">최근 대국 이력 (등수 및 pt)</h3>
             <div class="chart-filters">
-              <button class="combined-filter-btn active" data-limit="10">최근 10판</button>
-              <button class="combined-filter-btn" data-limit="20">최근 20판</button>
-              <button class="combined-filter-btn" data-limit="50">최근 50판</button>
+              <button class="combined-filter-btn active" data-limit="10">최근 10국</button>
+              <button class="combined-filter-btn" data-limit="20">최근 20국</button>
+              <button class="combined-filter-btn" data-limit="50">최근 50국</button>
               <button class="combined-filter-btn" data-limit="0">전체</button>
             </div>
           </div>
@@ -285,7 +285,7 @@
           </div>
 
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-            <h3 style="margin: 0;">날짜별 포인트 및 등수</h3>
+            <h3 style="margin: 0;">날짜별 pt 및 등수</h3>
             <div class="chart-filters">
               <button class="chart-filter-btn active" data-range="week">최근 1주일</button>
               <button class="chart-filter-btn" data-range="month">최근 1달</button>
@@ -304,7 +304,7 @@
             <thead>
               <tr>
                 <th>플레이어</th>
-                <th>같이 한 판 수</th>
+                <th>같이 한 대국 수</th>
                 <th>내 평균 등수</th>
                 <th>상대 평균 등수</th>
               </tr>
@@ -335,22 +335,22 @@
             <div class="row">
               <label>P1(동)</label>
               <input name="player1_name" placeholder="플레이어 1 이름" required>
-              <input name="player1_score" type="text" placeholder="점수" required>
+              <input name="player1_score" type="text" placeholder="pt" required>
             </div>
             <div class="row">
               <label>P2(남)</label>
               <input name="player2_name" placeholder="플레이어 2 이름" required>
-              <input name="player2_score" type="text" placeholder="점수" required>
+              <input name="player2_score" type="text" placeholder="pt" required>
             </div>
             <div class="row">
               <label>P3(서)</label>
               <input name="player3_name" placeholder="플레이어 3 이름" required>
-              <input name="player3_score" type="text" placeholder="점수" required>
+              <input name="player3_score" type="text" placeholder="pt" required>
             </div>
             <div class="row">
               <label>P4(북)</label>
               <input name="player4_name" placeholder="플레이어 4 이름" required>
-              <input name="player4_score" type="text" placeholder="점수" required>
+              <input name="player4_score" type="text" placeholder="pt" required>
             </div>
             <button type="submit">저장</button>
           </form>
@@ -361,7 +361,7 @@
             <h2>대회 대국 기록</h2>
             <div class="games-header-right">
               <a href="/mahjong_rating/export_tournament" class="export-link">CSV 내보내기</a>
-              <a href="/mahjong_rating/import_tournament" class="import-link">CSV 업로드</a>
+              <a href="/mahjong_rating/import_tournament" class="import-link">CSV 가져오기</a>
             </div>
           </div>
 
@@ -407,7 +407,7 @@
               <tr>
                 <th>순위</th>
                 <th>이름</th>
-                <th>게임 수</th>
+                <th>대국 수</th>
                 <th>총 pt</th>
                 <th>평균 pt</th>
                 <th>연대율</th>
@@ -460,7 +460,7 @@
             </thead>
             <tbody id="archive-games-tbody">
               <tr>
-                <td colspan="7" class="ranking-placeholder">아카이브를 선택하세요.</td>
+                <td colspan="7" class="ranking-placeholder">아카이브 없음</td>
               </tr>
             </tbody>
           </table>
@@ -489,7 +489,7 @@
                   <th>이름</th>
 
                   <th class="sortable" data-sort-key="games">
-                    게임 수
+                    대국 수
                   </th>
 
                   <th class="sortable" data-sort-key="total_pt">
@@ -534,11 +534,11 @@
 
             <section id="archive-stats-daily-section" class="stats-panel" style="display:none;">
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                <h3 style="margin: 0;">최근 경기 이력 (등수 및 포인트)</h3>
+                <h3 style="margin: 0;">최근 대국 이력 (등수 및 pt)</h3>
                 <div class="chart-filters">
-                  <button class="archive-combined-filter-btn active" data-limit="10">최근 10판</button>
-                  <button class="archive-combined-filter-btn" data-limit="20">최근 20판</button>
-                  <button class="archive-combined-filter-btn" data-limit="50">최근 50판</button>
+                  <button class="archive-combined-filter-btn active" data-limit="10">최근 10국</button>
+                  <button class="archive-combined-filter-btn" data-limit="20">최근 20국</button>
+                  <button class="archive-combined-filter-btn" data-limit="50">최근 50국</button>
                   <button class="archive-combined-filter-btn" data-limit="0">전체</button>
                 </div>
               </div>
@@ -550,7 +550,7 @@
               </div>
 
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                <h3 style="margin: 0;">날짜별 포인트 및 등수</h3>
+                <h3 style="margin: 0;">날짜별 pt 및 등수</h3>
                 <div class="chart-filters">
                   <button class="archive-chart-filter-btn active" data-range="week">최근 1주일</button>
                   <button class="archive-chart-filter-btn" data-range="month">최근 1달</button>
@@ -569,7 +569,7 @@
                 <thead>
                   <tr>
                     <th>플레이어</th>
-                    <th>같이 한 판 수</th>
+                    <th>같이 한 대국 수</th>
                     <th>내 평균 등수</th>
                     <th>상대 평균 등수</th>
                   </tr>
@@ -620,14 +620,14 @@
             <h3>뱃지 CSV 백업 / 복원</h3>
             <div class="games-header-right">
               <a href="/mahjong_rating/export_badges" class="export-link">뱃지 목록 CSV 내보내기</a>
-              <a href="/mahjong_rating/import_badges" class="import-link">뱃지 목록 업로드</a>
+              <a href="/mahjong_rating/import_badges" class="import-link">뱃지 목록 가져오기</a>
             </div>
             <div class="games-header-right" style="margin-top:6px;">
               <a href="/mahjong_rating/export_player_badges" class="export-link">뱃지 부여 CSV 내보내기</a>
-              <a href="/mahjong_rating/import_player_badges" class="import-link">뱃지 부여 업로드</a>
+              <a href="/mahjong_rating/import_player_badges" class="import-link">뱃지 부여 가져오기</a>
             </div>
             <p class="hint-text" style="margin-top:6px;">
-              업로드는 기존 데이터를 모두 삭제하고 새로 덮어쓰는 “대체” 방식입니다.
+              가져오기는 기존 데이터를 모두 삭제하고 새로 덮어쓰는 “대체” 방식입니다.
             </p>
           </section>
 
@@ -654,7 +654,7 @@
               </thead>
               <tbody id="badge-list-tbody">
                 <tr>
-                  <td colspan="4" class="ranking-placeholder">등록된 뱃지가 없습니다.</td>
+                  <td colspan="4" class="ranking-placeholder">뱃지 없음</td>
                 </tr>
               </tbody>
             </table>
@@ -664,9 +664,9 @@
 
 
         <section class="admin-panel">
-          <h3>아카이브 생성 (CSV 업로드)</h3>
+          <h3>아카이브 생성 (CSV 가져오기)</h3>
           <p class="hint-text">
-            한 시즌의 대국 기록이 담긴 CSV 파일을 업로드하면<br>
+            한 시즌의 대국 기록이 담긴 CSV 파일을 가져오면<br>
             새 아카이브로 저장됩니다. (형식은 /export 로 받은 CSV와 동일하면 편해요.)
           </p>
           <form id="archive-upload-form" method="post" action="{{ url_for('mahjong.admin_archive_import') }}" enctype="multipart/form-data"
@@ -679,7 +679,7 @@
               <label>CSV 파일</label>
               <input type="file" name="file" accept=".csv" required>
             </div>
-            <button type="submit">업로드</button>
+            <button type="submit">가져오기</button>
           </form>
         </section>
 
@@ -690,13 +690,13 @@
               <tr>
                 <th>이름</th>
                 <th>생성 시각</th>
-                <th>게임 수</th>
+                <th>대국 수</th>
                 <th></th>
               </tr>
             </thead>
             <tbody id="archive-list-tbody">
               <tr>
-                <td colspan="4" class="ranking-placeholder">등록된 아카이브가 없습니다.</td>
+                <td colspan="4" class="ranking-placeholder">아카이브 없음</td>
               </tr>
             </tbody>
           </table>
