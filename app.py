@@ -5,16 +5,20 @@ from datetime import datetime
 import os
 import io
 import csv
+import json
 from PIL import Image, ImageOps
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def get_config():
+    with open(os.path.join(BASE_DIR, "config.json"), "r", encoding="utf-8") as f:
+        return json.load(f)
+
 DB_PATH = os.path.join(BASE_DIR, "games.db")
 SCHEDULE_DB_PATH = os.path.join(BASE_DIR, "schedules.db")
 CLUB_NAME = "그릴마당"  # 동아리 이름 (변경 가능)
 
-# 마작 포인트 계산용 상수
-UMA_VALUES = [50, 10, -10, -30]   # 1등~4등 우마 (+오카 반영한 버전)
-RETURN_SCORE = 30000
+# 마작 포인트 계산용 설정은 config.json에서 관리합니다.
 
 
 
@@ -148,7 +152,8 @@ schedule_bp = Blueprint('schedule', __name__)
 
 @app.context_processor
 def inject_club_name():
-    return dict(club_name=CLUB_NAME, uma_values=UMA_VALUES, return_score=RETURN_SCORE)
+    cfg = get_config()
+    return dict(club_name=CLUB_NAME, config=cfg)
 
 CORS(app)
 init_db()
@@ -194,9 +199,11 @@ def create_game():
     except (ValueError, TypeError):
         return jsonify({"error": "scores must be integers"}), 400
 
-    # 네 명 점수 합 100000 체크
-    if s1 + s2 + s3 + s4 != 100000:
-        return jsonify({"error": "total score must be 100000"}), 400
+    # 네 명 점수 합 체크
+    cfg = get_config()["MAHJONG_CONFIG"]
+    target_sum = cfg["START_SCORE"] * 4
+    if s1 + s2 + s3 + s4 != target_sum:
+        return jsonify({"error": f"total score must be {target_sum}"}), 400
 
     created_at = datetime.now().isoformat(timespec="minutes")
 
@@ -245,15 +252,20 @@ def export_games():
     conn.close()
 
     def calc_pts(scores):
+        cfg = get_config()["MAHJONG_CONFIG"]
+        ret = cfg["RETURN_SCORE"]
+        uma_vals = cfg["UMA"]
+        oka = cfg["OKA_TO_1ST"]
+
         order = sorted(range(4), key=lambda i: scores[i], reverse=True)
 
         uma_for_player = [0, 0, 0, 0]
         for rank, idx in enumerate(order):
-            uma_for_player[idx] = UMA_VALUES[rank]
+            uma_for_player[idx] = uma_vals[rank] + (oka if rank == 0 else 0)
 
         pts = []
         for i in range(4):
-            base = (scores[i] - RETURN_SCORE) / 1000.0
+            base = (scores[i] - ret) / 1000.0
             pts.append(base + uma_for_player[i])
         return pts
 
@@ -453,9 +465,11 @@ def create_tournament_game():
     except (ValueError, TypeError):
         return jsonify({"error": "scores must be integers"}), 400
 
-    # ✅ 합 100000 서버에서도 체크
-    if (s1 + s2 + s3 + s4) != 100000:
-        return jsonify({"error": "total score must be 100000"}), 400
+    # ✅ 합 서버에서도 체크
+    cfg = get_config()["MAHJONG_CONFIG"]
+    target_sum = cfg["START_SCORE"] * 4
+    if (s1 + s2 + s3 + s4) != target_sum:
+        return jsonify({"error": f"total score must be {target_sum}"}), 400
 
     created_at = datetime.now().isoformat(timespec="minutes")
 
@@ -1145,15 +1159,20 @@ def export_tournament_games():
     conn.close()
 
     def calc_pts(scores):
+        cfg = get_config()["MAHJONG_CONFIG"]
+        ret = cfg["RETURN_SCORE"]
+        uma_vals = cfg["UMA"]
+        oka = cfg["OKA_TO_1ST"]
+
         order = sorted(range(4), key=lambda i: scores[i], reverse=True)
 
         uma_for_player = [0, 0, 0, 0]
         for rank, idx in enumerate(order):
-            uma_for_player[idx] = UMA_VALUES[rank]
+            uma_for_player[idx] = uma_vals[rank] + (oka if rank == 0 else 0)
 
         pts = []
         for i in range(4):
-            base = (scores[i] - RETURN_SCORE) / 1000.0
+            base = (scores[i] - ret) / 1000.0
             pts.append(base + uma_for_player[i])
         return pts
 

@@ -15,8 +15,10 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script>
     window.GAME_CONFIG = {
-      uma: JSON.parse('{{ uma_values | tojson }}'),
-      return_score: Number('{{ return_score }}')
+      start_score: Number('{{ config.MAHJONG_CONFIG.START_SCORE }}'),
+      return_score: Number('{{ config.MAHJONG_CONFIG.RETURN_SCORE }}'),
+      uma: JSON.parse('{{ config.MAHJONG_CONFIG.UMA | tojson }}'),
+      oka: Number('{{ config.MAHJONG_CONFIG.OKA_TO_1ST }}')
     };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -128,13 +130,9 @@
         <section class="rule-panel">
           <h2>레이팅전 규칙</h2>
           <ul>
-            <li>4인 반장전, 서입 O, 북입 X</li>
-            <li>25,000점 시작, 30,000점 반환</li>
-            <li>토비 시 게임 종료</li>
-            <li>우마: 1등 +30 / 2등 +10 / 3등 −10 / 4등 −30</li>
-            <li>오카: 1등 +20</li>
-            <li>발성미스: 화료 불가</li>
-            <li>촌보: 3000 all</li>
+            {% for rule in config.RULES_PERSONAL %}
+            <li>{{ rule }}</li>
+            {% endfor %}
           </ul>
         </section>
       </div>
@@ -384,7 +382,9 @@
         <section class="rule-panel">
           <h2>대회 규칙</h2>
           <ul>
-            <li>대회 전용 창입니다</li>
+            {% for rule in config.RULES_TOURNAMENT %}
+            <li>{{ rule }}</li>
+            {% endfor %}
           </ul>
         </section>
       </div>

@@ -1,7 +1,9 @@
 // ===== 공통 상수 =====
 const API_BASE = "/mahjong_rating";
-const UMA_VALUES = (window.GAME_CONFIG && window.GAME_CONFIG.uma) ? window.GAME_CONFIG.uma : [50, 10, -10, -30];
+const START_SCORE = (window.GAME_CONFIG && window.GAME_CONFIG.start_score) ? Number(window.GAME_CONFIG.start_score) : 25000;
 const RETURN_SCORE = (window.GAME_CONFIG && window.GAME_CONFIG.return_score) ? Number(window.GAME_CONFIG.return_score) : 30000;
+const UMA_VALUES = (window.GAME_CONFIG && window.GAME_CONFIG.uma) ? window.GAME_CONFIG.uma : [15, 5, -5, -15];
+const OKA_TO_1ST = (window.GAME_CONFIG && window.GAME_CONFIG.oka !== undefined) ? Number(window.GAME_CONFIG.oka) : 20;
 
 // 전체 게임 / 플레이어 요약 캐시 (통계 화면용)
 let ALL_GAMES = [];
@@ -50,7 +52,7 @@ function calcPts(scores) {
 
   const uma = [0, 0, 0, 0];
   order.forEach((idx, rank) => {
-    uma[idx] = UMA_VALUES[rank];
+    uma[idx] = UMA_VALUES[rank] + (rank === 0 ? OKA_TO_1ST : 0);
   });
 
   return scores.map((s, i) => {
@@ -475,7 +477,8 @@ function setupPersonalForm() {
     const s4 = parseInt(fd.get("player4_score"), 10);
 
     if ([s1, s2, s3, s4].some(Number.isNaN)) return alert("pt는 숫자여야 합니다.");
-    if (s1 + s2 + s3 + s4 !== 100000) return alert(`합 100000이 아닙니다. (현재: ${s1 + s2 + s3 + s4})`);
+    const targetSum = START_SCORE * 4;
+    if (s1 + s2 + s3 + s4 !== targetSum) return alert(`합 ${targetSum}이(가) 아닙니다. (현재: ${s1 + s2 + s3 + s4})`);
 
     const payload = {
       player1_name: p1, player2_name: p2, player3_name: p3, player4_name: p4,
@@ -1409,7 +1412,8 @@ function setupTournamentForm() {
     const s3 = parseInt(fd.get("player3_score"), 10);
     const s4 = parseInt(fd.get("player4_score"), 10);
 
-    if ([s1, s2, s3, s4].some(Number.isNaN) || (s1 + s2 + s3 + s4 !== 100000)) return alert("pt 오류");
+    const targetSum = START_SCORE * 4;
+    if ([s1, s2, s3, s4].some(Number.isNaN) || (s1 + s2 + s3 + s4 !== targetSum)) return alert("pt 합계 오류");
 
     try {
       await fetchJSON(`${API_BASE}/api/tournament_games`, {
