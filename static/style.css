@@ -1187,10 +1187,12 @@ input[type="file"]::file-selector-button {
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  padding: 0 12px;
-  border-radius: 16px;
-  border: 1px solid #ccc;
-  background: #fff;
+  padding: 0 16px;
+  border-radius: 18px;
+  border: 1px solid #1f3bb8;
+  background-color: #4f7dff;
+  color: #fff;
+  font-weight: 600;
   cursor: pointer;
   height: 28px;
   transition: transform 0.15s, box-shadow 0.15s, background-color 0.15s;
@@ -1198,7 +1200,7 @@ input[type="file"]::file-selector-button {
 }
 
 input[type="file"]::file-selector-button:hover {
-  background: #eee;
+  background-color: #3166ff;
   transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.13);
 }
