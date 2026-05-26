@@ -640,9 +640,12 @@ function computePlayerDetailStats(playerName, games) {
     name: n, games: st.games, my_avg_rank: st.my_rank_sum / st.games, co_avg_rank: st.co_rank_sum / st.games
   })).sort((a, b) => b.games - a.games || String(a.name).localeCompare(String(b.name)));
 
+  const avg_rank = totalGames > 0 ? (rankCounts[0] * 1 + rankCounts[1] * 2 + rankCounts[2] * 3 + rankCounts[3] * 4) / totalGames : 0;
+
   return {
     games: totalGames, total_pt: totalPt, rankCounts,
     yonde_rate: totalGames > 0 ? (rankCounts[0] + rankCounts[1]) * 100 / totalGames : 0,
+    avg_rank: avg_rank,
     recent: recent.reverse(), // 최신순
     coPlayers,
     tobi_count: tobiCount,
@@ -726,6 +729,11 @@ function renderStatsForPlayer(name) {
   // Distribution
   distDiv.innerHTML = "";
   distDiv.appendChild(createRankDistBar(detail.rankCounts, detail.games));
+
+  const avgRankSpan = document.getElementById("stats-avg-rank");
+  if (avgRankSpan) {
+    avgRankSpan.textContent = detail.games > 0 ? `평균 등수: ${detail.avg_rank.toFixed(2)}` : "평균 등수: -";
+  }
 
 
 
@@ -1346,6 +1354,11 @@ function renderArchiveStatsForPlayer(name) {
   if (distDiv) {
     distDiv.innerHTML = "";
     distDiv.appendChild(createRankDistBar(detail.rankCounts, detail.games));
+  }
+
+  const archiveAvgRankSpan = document.getElementById("archive-stats-avg-rank");
+  if (archiveAvgRankSpan) {
+    archiveAvgRankSpan.textContent = detail.games > 0 ? `평균 등수: ${detail.avg_rank.toFixed(2)}` : "평균 등수: -";
   }
 
   // Co-Players
