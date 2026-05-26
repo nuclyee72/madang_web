@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ club_name }} 시즌 말 결산</title>
+  
+  <link rel="stylesheet" href="{{ url_for('review.static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <!-- 상단 헤더 -->
+  <div class="top-bar">
+    <h1>{{ club_name }}<br class="mobile-br"> 시즌 결산</h1>
+    <div class="view-switch">
+      <button class="view-switch-btn active" data-view="global">전체 시즌 통계</button>
+      <button class="view-switch-btn" data-view="personal">개인별 결산</button>
+      <a href="/mahjong_rating" class="btn-link">레이팅 홈으로</a>
+    </div>
+  </div>
+
+  <!-- ================= 1. 전체 시즌 통계 뷰 ================= -->
+  <div id="global-view" class="view">
+    <div class="main-layout equal-layout">
+      <!-- 왼쪽 패널 -->
+      <div class="left-panel">
+        <section class="stats-panel">
+          <h2>시즌 요약</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <div class="stat-card">
+              <h3>총 대국 수</h3>
+              <p class="stat-number" id="global-total-games">-</p>
+              <p class="hint-text" id="global-prev-games-compare" style="margin-top: 4px; font-size: 12px;">-</p>
+            </div>
+            <div class="stat-card">
+              <h3>참여 인원</h3>
+              <p class="stat-number" id="global-total-players">-</p>
+            </div>
+          </div>
+          
+          <h3>시간대 비율</h3>
+          <div class="chart-container" style="position: relative; height: 180px; width: 100%; margin-top:10px;">
+            <canvas id="global-time-chart"></canvas>
+          </div>
+          <p class="hint-text" style="text-align: center; margin-top:5px;">00~06시 사이 시작한 게임은 밤샘 마작으로 집계됩니다.</p>
+        </section>
+
+        <section class="stats-panel">
+          <h2>시험기간 vs 일반기간</h2>
+          <div style="display: flex; gap: 12px; align-items:center; justify-content: center; padding: 10px 0;">
+            <div style="text-align:center; flex: 1;">
+              <p style="font-weight:bold; margin:0 0 5px 0;">시험기간 일평균</p>
+              <p style="font-size:24px; color:#e74c3c; margin:0; font-weight:bold;" id="global-exam-avg">-</p>
+            </div>
+            <div style="font-size: 20px; color:#aaa;">vs</div>
+            <div style="text-align:center; flex: 1;">
+              <p style="font-weight:bold; margin:0 0 5px 0;">일반기간 일평균</p>
+              <p style="font-size:24px; color:#4f7dff; margin:0; font-weight:bold;" id="global-normal-avg">-</p>
+            </div>
+          </div>
+          <p class="hint-text" style="text-align: center; font-size:11px;">※ 시험기간: 4월 중하순, 6월 중순, 10월 중하순, 12월 중순 기준</p>
+        </section>
+      </div>
+
+      <!-- 오른쪽 패널 -->
+      <div class="right-panel">
+        <section class="stats-panel">
+          <h2>월별 대국 트렌드</h2>
+          <div class="chart-container" style="position: relative; height: 220px; width: 100%;">
+            <canvas id="global-month-chart"></canvas>
+          </div>
+        </section>
+        
+        <section class="stats-panel">
+          <h2>요일별 대국 트렌드</h2>
+          <div class="chart-container" style="position: relative; height: 220px; width: 100%;">
+            <canvas id="global-weekday-chart"></canvas>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 2. 개인별 결산 뷰 ================= -->
+  <div id="personal-view" class="view" style="display: none;">
+    <div class="main-layout equal-layout">
+      <!-- 왼쪽 패널 -->
+      <div class="left-panel">
+        <section class="stats-panel">
+          <h2>플레이어 검색</h2>
+          <div class="stats-player-select">
+            <label for="personal-player-select">이름 입력</label>
+            <input type="text" id="personal-player-input" placeholder="이름을 입력 후 Enter" style="padding: 6px; border:1px solid #ccc; border-radius:4px; flex:1;">
+            <button id="personal-search-btn" class="btn-link" style="height:auto; padding: 6px 12px; cursor:pointer; background:#4f7dff; color:#fff; border:none;">조회</button>
+          </div>
+          <p id="personal-error-msg" style="color:red; font-size:13px; display:none; margin-top:5px;"></p>
+        </section>
+
+        <section class="stats-panel" id="personal-content-left" style="display:none;">
+          <h2>기록 요약</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="stat-card" style="padding:10px;">
+              <h3 style="font-size:12px;">총 대국 수</h3>
+              <p class="stat-number" id="p-total-games" style="font-size:1.5rem;">-</p>
+            </div>
+            <div class="stat-card" style="padding:10px;">
+              <h3 style="font-size:12px;">최고 점수 (최대 타점)</h3>
+              <p class="stat-number" id="p-max-score" style="font-size:1.5rem; color:#4dd2a6">-</p>
+            </div>
+            <div class="stat-card" style="padding:10px;">
+              <h3 style="font-size:12px;">연속 출석일</h3>
+              <p class="stat-number" id="p-attendance" style="font-size:1.5rem; color:#ff6b81">-</p>
+            </div>
+            <div class="stat-card" style="padding:10px;">
+              <h3 style="font-size:12px;">토비율 (파산)</h3>
+              <p class="stat-number" id="p-bankrupt" style="font-size:1.5rem; color:#6c757d">-</p>
+            </div>
+          </div>
+          <p class="hint-text" style="text-align: center; margin-top:5px;" id="p-most-played-date"></p>
+
+          <h2 style="margin-top:16px;">연속 기록 (스트릭)</h2>
+          <table class="games-table">
+            <tbody>
+              <tr><th>최다 연속 1등</th><td id="p-streak-1st">-</td></tr>
+              <tr><th>최다 연속 연대 (1~2등)</th><td id="p-streak-yonde">-</td></tr>
+              <tr><th>최다 연속 라스회피</th><td id="p-streak-avoid4">-</td></tr>
+              <tr><th>최다 연속 라스 (4등)</th><td id="p-streak-4th">-</td></tr>
+            </tbody>
+          </table>
+
+          <h2 style="margin-top:16px;">이번 시즌 획득 뱃지</h2>
+          <div id="p-badges-container" style="display:flex; flex-wrap:wrap; gap:8px;">
+            <!-- 뱃지 목록 렌더링 -->
+          </div>
+        </section>
+      </div>
+
+      <!-- 오른쪽 패널 -->
+      <div class="right-panel" id="personal-content-right" style="display:none;">
+        <section class="stats-panel">
+          <h2>상성 분석 (같이 많이 친 사람)</h2>
+          
+          <div class="chart-container" style="position: relative; height: 280px; width: 100%; margin-bottom: 16px;">
+            <canvas id="personal-radar-chart"></canvas>
+          </div>
+
+          <div style="display:flex; gap:12px; margin-bottom:12px;">
+            <div style="flex:1; background:#e4ebff; padding:10px; border-radius:8px; border:1px solid #b8c9ff;">
+              <h3 style="margin:0 0 4px 0; font-size:13px; color:#1f3bb8;">😇 인간 상성 (최고 승률)</h3>
+              <p style="margin:0; font-weight:bold; font-size:14px;" id="p-best-opponent">-</p>
+              <p style="margin:0; font-size:11px; color:#555;" id="p-best-gap">-</p>
+            </div>
+            <div style="flex:1; background:#ffe4e4; padding:10px; border-radius:8px; border:1px solid #ffb8b8;">
+              <h3 style="margin:0 0 4px 0; font-size:13px; color:#b81f1f;">😈 천적 (최저 승률)</h3>
+              <p style="margin:0; font-weight:bold; font-size:14px;" id="p-worst-opponent">-</p>
+              <p style="margin:0; font-size:11px; color:#555;" id="p-worst-gap">-</p>
+            </div>
+          </div>
+
+          <table class="games-table">
+            <thead>
+              <tr>
+                <th>플레이어</th>
+                <th>같이 한 판수</th>
+                <th>내 평균 등수</th>
+                <th>상대 평균 등수</th>
+              </tr>
+            </thead>
+            <tbody id="p-co-players-tbody">
+            </tbody>
+          </table>
+          <p class="hint-text" style="margin-top:5px; text-align:center;">상성 평가는 최소 5판 이상 같이 한 유저를 대상으로 합니다.</p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('review.static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -57,6 +57,22 @@ mahjong_module.init_db()
 
 mahjong_bp = mahjong_module.mahjong_bp
 
+# ── 시즌 말 결산(Review) 서브모듈 import ──
+_review_spec = importlib.util.spec_from_file_location(
+    "review_app",
+    os.path.join(BASE_DIR, "mahjong_rating_review", "app.py")
+)
+review_module = importlib.util.module_from_spec(_review_spec)
+_review_spec.loader.exec_module(review_module)
+
+review_module.configure(
+    db_path=os.path.join(BASE_DIR, "games.db"),
+    config_path=os.path.join(BASE_DIR, "mahjong_rating_review", "config.json"),
+    club_name=CLUB_NAME,
+)
+
+review_bp = review_module.review_bp
+
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 # 한글 등 비아스키 문자 처리를 위해
@@ -168,6 +184,7 @@ def delete_schedule(schedule_id):
 
 
 app.register_blueprint(mahjong_bp, url_prefix="/mahjong_rating")
+app.register_blueprint(review_bp, url_prefix="/mahjong_rating/review")
 app.register_blueprint(schedule_bp, url_prefix="/schedule")
 
 if __name__ == "__main__":
