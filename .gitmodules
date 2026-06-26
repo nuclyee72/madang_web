@@ -1,3 +1,6 @@
 [submodule "mahjong_rating_site"]
 	path = mahjong_rating_site
 	url = https://github.com/nuclyee72/mahjong_rating_site.git
+[submodule "s1_mahjong_result_presentation"]
+	path = s1_mahjong_result_presentation
+	url = https://github.com/nuclyee72/s1_mahjong_result_presentation.git
