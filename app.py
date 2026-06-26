@@ -57,21 +57,6 @@ mahjong_module.init_db()
 
 mahjong_bp = mahjong_module.mahjong_bp
 
-# ── 시즌 말 결산(Review) 서브모듈 import ──
-_review_spec = importlib.util.spec_from_file_location(
-    "review_app",
-    os.path.join(BASE_DIR, "mahjong_rating_review", "app.py")
-)
-review_module = importlib.util.module_from_spec(_review_spec)
-_review_spec.loader.exec_module(review_module)
-
-review_module.configure(
-    db_path=os.path.join(BASE_DIR, "games.db"),
-    config_path=os.path.join(BASE_DIR, "mahjong_rating_review", "config.json"),
-    club_name=CLUB_NAME,
-)
-
-review_bp = review_module.review_bp
 
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
@@ -184,8 +169,20 @@ def delete_schedule(schedule_id):
 
 
 app.register_blueprint(mahjong_bp, url_prefix="/mahjong_rating")
-app.register_blueprint(review_bp, url_prefix="/mahjong_rating/review")
 app.register_blueprint(schedule_bp, url_prefix="/schedule")
+
+# mahjong_rating_site 내의 review submodule도 /mahjong_rating/review로 등록
+_review_mod = getattr(mahjong_module, "review_module", None)
+if _review_mod is not None:
+    # exec_module 실행 시 mahjong_rating_site 기준 경로로 configure됐으므로 재주입
+    _review_mod.configure(
+        db_path=os.path.join(BASE_DIR, "games.db"),
+        config_path=os.path.join(BASE_DIR, "config.json"),
+        club_name=CLUB_NAME,
+    )
+    app.register_blueprint(_review_mod.review_bp, url_prefix="/mahjong_rating/review")
+    print("[INFO] review_bp registered at /mahjong_rating/review")
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
