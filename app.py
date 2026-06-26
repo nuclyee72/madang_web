@@ -171,17 +171,16 @@ def delete_schedule(schedule_id):
 app.register_blueprint(mahjong_bp, url_prefix="/mahjong_rating")
 app.register_blueprint(schedule_bp, url_prefix="/schedule")
 
-# mahjong_rating_site 내의 review submodule도 /mahjong_rating/review로 등록
-_review_mod = getattr(mahjong_module, "review_module", None)
-if _review_mod is not None:
-    # exec_module 실행 시 mahjong_rating_site 기준 경로로 configure됐으므로 재주입
-    _review_mod.configure(
-        db_path=os.path.join(BASE_DIR, "games.db"),
-        config_path=os.path.join(BASE_DIR, "config.json"),
-        club_name=CLUB_NAME,
-    )
-    app.register_blueprint(_review_mod.review_bp, url_prefix="/mahjong_rating/review")
-    print("[INFO] review_bp registered at /mahjong_rating/review")
+s1_review_bp = Blueprint('s1_review', __name__,
+                         static_url_path='',
+                         static_folder=os.path.join(BASE_DIR, "s1_mahjong_result_presentation", "web"))
+
+@s1_review_bp.route("/")
+def s1_review_index():
+    return s1_review_bp.send_static_file("index.html")
+
+app.register_blueprint(s1_review_bp, url_prefix="/s1_review")
+
 
 
 if __name__ == "__main__":

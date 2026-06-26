@@ -9,7 +9,7 @@ const OKA_TO_1ST = (window.GAME_CONFIG && window.GAME_CONFIG.oka !== undefined) 
 let ALL_GAMES = [];
 let PLAYER_SUMMARY = [];       // ✅ 개인 레이팅 표(4국 이상) 전용
 let PLAYER_SUMMARY_ALL = [];   // ✅ 게임 기준 전체 플레이어(필터 전)
-let STATS_PLAYER_LIST = [];    // ✅ 개인별 통계 셀렉트 전용(뱃지 포함)
+let STATS_PLAYER_LIST = [];    // ✅ 플레이어 기록 셀렉트 전용(뱃지 포함)
 
 let ALL_BADGES = [];
 
@@ -18,7 +18,61 @@ let TOURNAMENT_STATS = {};    // { [name]: { games, sumPosPt } }
 let SEASON_SUMMARY = [];      // 시즌 pt용 표 데이터
 
 let ARCHIVE_VIEW_MODE = "ranking"; // "ranking" | "stats"
-let archiveStatsChart = null; // 아카이브 개인 통계용 차트
+
+const PAGINATION_STATE = {};
+const PAGE_SIZE = 10;
+
+function renderPaginationControls(tbodyId, totalItems, onPageChange) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  const table = tbody.closest('table');
+  if (!table) return;
+
+  let container = table.nextElementSibling;
+  if (!container || !container.classList.contains('pagination-controls')) {
+    container = document.createElement('div');
+    container.className = 'pagination-controls';
+    container.style.display = 'flex';
+    container.style.justifyContent = 'center';
+    container.style.alignItems = 'center';
+    container.style.marginTop = '15px';
+    container.style.marginBottom = '15px';
+    container.style.gap = '15px';
+    table.parentNode.insertBefore(container, table.nextSibling);
+  }
+
+  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+  let currentPage = PAGINATION_STATE[tbodyId] || 1;
+  if (currentPage > totalPages) currentPage = totalPages;
+  PAGINATION_STATE[tbodyId] = currentPage;
+
+  if (totalItems === 0) {
+    container.style.display = 'none';
+    return;
+  }
+  container.style.display = 'flex';
+
+  container.innerHTML = `
+    <button class="page-btn prev-btn" ${currentPage === 1 ? 'disabled' : ''} style="cursor:pointer; padding: 4px 12px; border: 1px solid #ddd; background: #fff; border-radius: 4px;">&lt;</button>
+    <span style="font-size:14px; font-weight:bold; min-width: 40px; text-align: center;">${currentPage} / ${totalPages}</span>
+    <button class="page-btn next-btn" ${currentPage === totalPages ? 'disabled' : ''} style="cursor:pointer; padding: 4px 12px; border: 1px solid #ddd; background: #fff; border-radius: 4px;">&gt;</button>
+  `;
+
+  container.querySelector('.prev-btn').addEventListener('click', () => {
+    if (currentPage > 1) {
+      PAGINATION_STATE[tbodyId] = currentPage - 1;
+      onPageChange();
+    }
+  });
+
+  container.querySelector('.next-btn').addEventListener('click', () => {
+    if (currentPage < totalPages) {
+      PAGINATION_STATE[tbodyId] = currentPage + 1;
+      onPageChange();
+    }
+  });
+}
+let archiveStatsChart = null; // 아카이브 플레이어 기록용 차트
 
 
 // ===== 개인 레이팅(전체 등수) 정렬 상태 =====
@@ -169,19 +223,27 @@ function calculateSeasonScore(totalPt, games, tJoin, tSum) {
 
 // ======================= 공통 렌더링 함수 =======================
 
-// 1. 대국 기록 리스트 렌더링 (개인전, 아카이브, 대회전)
-// options: { onDelete: async (id) => { ... }, useIndexNumbering: bool }
-function renderGameList(tbodyId, games, options = {}) {
+function renderGameList(tbodyId, allGames, options = {}) {
   const tbody = document.getElementById(tbodyId);
   if (!tbody) return;
 
   tbody.innerHTML = "";
-  if (!games || games.length === 0) {
+  if (!allGames || allGames.length === 0) {
     tbody.innerHTML = '<tr><td colspan="7" class="ranking-placeholder">기록 없음</td></tr>';
+    renderPaginationControls(tbodyId, 0, () => {});
     return;
   }
 
-  games.forEach((g, index) => {
+  if (!PAGINATION_STATE[tbodyId]) PAGINATION_STATE[tbodyId] = 1;
+  let currentPage = PAGINATION_STATE[tbodyId];
+  const totalPages = Math.ceil(allGames.length / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = totalPages;
+  PAGINATION_STATE[tbodyId] = currentPage;
+
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const pageGames = allGames.slice(startIndex, startIndex + PAGE_SIZE);
+
+  pageGames.forEach((g, idxOnPage) => {
     const scores = [
       Number(g.player1_score), Number(g.player2_score),
       Number(g.player3_score), Number(g.player4_score),
@@ -200,10 +262,14 @@ function renderGameList(tbodyId, games, options = {}) {
     const tr = document.createElement("tr");
     tr.className = ""
 
-    // ID, Time (use index if useIndexNumbering is true)
-    const displayId = options.useIndexNumbering ? (index + 1) : (g.id || "");
+    const isTournament = Boolean(g.is_tournament_flag);
+    const tournamentBadge = isTournament ? ' <span style="color:#e67e22;font-size:0.85em;font-weight:bold;">[대회]</span>' : '';
+    const indexStr = options.useIndexNumbering
+      ? `<span style="color:#888;">#${allGames.length - (startIndex + idxOnPage)}</span>`
+      : `<span style="color:#888;">#${g.id}</span>`;
+
     tr.innerHTML = `
-      <td>${displayId}</td>
+      <td>${indexStr}${tournamentBadge}</td>
       <td>${formatKoreanTime(g.created_at)}</td>
       <td></td><td></td><td></td><td></td>
       <td></td>
@@ -230,6 +296,59 @@ function renderGameList(tbodyId, games, options = {}) {
     }
 
     tbody.appendChild(tr);
+  });
+
+  renderPaginationControls(tbodyId, allGames.length, () => {
+    renderGameList(tbodyId, allGames, options);
+  });
+}
+
+function renderPlayerGameRecords(tbodyId, gameRecords) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  if (!gameRecords || gameRecords.length === 0) {
+     tbody.innerHTML = '<tr><td colspan="5" class="ranking-placeholder">기록 없음</td></tr>';
+     renderPaginationControls(tbodyId, 0, () => {});
+     return;
+  }
+
+  if (!PAGINATION_STATE[tbodyId]) PAGINATION_STATE[tbodyId] = 1;
+  let currentPage = PAGINATION_STATE[tbodyId];
+  const totalPages = Math.ceil(gameRecords.length / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = totalPages;
+  PAGINATION_STATE[tbodyId] = currentPage;
+
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const pageRecords = gameRecords.slice(startIndex, startIndex + PAGE_SIZE);
+
+  pageRecords.forEach((rec) => {
+    const tr = document.createElement("tr");
+    tr.className = "";
+    const tdTime = document.createElement("td");
+    tdTime.className = "col-time-hide";
+    tdTime.textContent = formatKoreanTime(rec.created_at);
+    tr.appendChild(tdTime);
+
+    rec.names.forEach((n, i) => {
+      const td = document.createElement("td");
+      td.innerHTML = `<strong>${n}</strong><br>${rec.scores[i]} (${rec.pts[i].toFixed(1)})`;
+      const isWinner = rec.ranks[i] === 1;
+      const isMyPlayer = i === rec.myIndex;
+
+      if (isWinner) {
+        td.classList.add("winner-cell");
+      } else if (isMyPlayer) {
+        td.classList.add("my-player-cell");
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+
+  renderPaginationControls(tbodyId, gameRecords.length, () => {
+    renderPlayerGameRecords(tbodyId, gameRecords);
   });
 }
 
@@ -383,7 +502,7 @@ function setupViewSwitch() {
       if (nextEl) {
         nextEl.style.display = "block";
         nextEl.classList.remove("view-slide-right", "view-slide-left");
-        // 강제 reflow 후 클래스 추가 (애니메이션 재시작)
+        // 강제 reflow 후 클래스 적용 (애니메이션 재시작)
         void nextEl.offsetWidth;
         nextEl.classList.add(slideClass);
         // 애니메이션 끝나면 클래스 제거
@@ -434,30 +553,14 @@ function setupRankingSort() {
 
 function renderMainRanking() {
   const ptWrap = document.getElementById("ranking-pt-wrap");
-  const seasonWrap = document.getElementById("ranking-season-wrap");
   const popWrap = document.getElementById("ranking-population-wrap");
-  const title = document.getElementById("ranking-title");
-
-  // Title Update
-  if (title) {
-    if (RANKING_VIEW_MODE === "pt") title.textContent = "전체 등수";
-    else if (RANKING_VIEW_MODE === "season") title.textContent = "시즌 pt";
-    else if (RANKING_VIEW_MODE === "population") title.textContent = "전체 인원 변동";
-  }
 
   // Visibility Toggle
-  if (ptWrap) ptWrap.style.display = RANKING_VIEW_MODE === "pt" ? "block" : "none";
-  if (seasonWrap) seasonWrap.style.display = RANKING_VIEW_MODE === "season" ? "block" : "none";
-  if (popWrap) popWrap.style.display = RANKING_VIEW_MODE === "population" ? "block" : "none";
+  if (ptWrap) ptWrap.style.display = "block";
+  if (popWrap) popWrap.style.display = "none";
 
   // Content Rendering
-  if (RANKING_VIEW_MODE === "population") {
-    renderPopulationTrend();
-  } else if (RANKING_VIEW_MODE === "season") {
-    renderSeasonRankingTable();
-  } else {
-    renderRankingTable("ranking-tbody", PLAYER_SUMMARY, RANKING_SORT, "ranking-table", "통계 없음");
-  }
+  renderRankingTable("ranking-tbody", PLAYER_SUMMARY, RANKING_SORT, "ranking-table", "통계 없음");
 }
 
 function setupPersonalForm() {
@@ -543,7 +646,7 @@ async function loadGamesAndRanking() {
 }
 
 
-// ======================= 개인별 통계 =======================
+// ======================= 플레이어 기록 =======================
 
 function setupStatsView() {
   const select = document.getElementById("stats-player-select");
@@ -670,7 +773,7 @@ function renderStatsForPlayer(name) {
   if (!summaryDiv) return;
 
   if (!name) {
-    summaryDiv.innerHTML = '<p class="hint-text">플레이어를 선택하세요.</p>';
+    summaryDiv.innerHTML = '';
     if (rankSection) rankSection.style.display = "none";
     if (gamesSection) gamesSection.style.display = "none";
     if (dailySection) dailySection.style.display = "none";
@@ -735,8 +838,6 @@ function renderStatsForPlayer(name) {
     avgRankSpan.textContent = detail.games > 0 ? `평균 등수: ${detail.avg_rank.toFixed(2)}` : "평균 등수: -";
   }
 
-
-
   // Co-Players
   coTbody.innerHTML = "";
   if (detail.coPlayers.length) {
@@ -752,41 +853,8 @@ function renderStatsForPlayer(name) {
 
   // Game Records
   if (playerGamesTbody) {
-    playerGamesTbody.innerHTML = "";
-    if (detail.gameRecords.length) {
-      detail.gameRecords.forEach((rec, ri) => {
-        const tr = document.createElement("tr");
-        tr.className = ""
-        const tdTime = document.createElement("td");
-        tdTime.className = "col-time-hide";
-        tdTime.textContent = formatKoreanTime(rec.created_at);
-        tr.appendChild(tdTime);
-        rec.names.forEach((n, i) => {
-          const td = document.createElement("td");
-          td.innerHTML = `<strong>${n}</strong><br>${rec.scores[i]} (${rec.pts[i].toFixed(1)})`;
-
-          // 1등인지 확인
-          const isWinner = rec.ranks[i] === 1;
-
-          // 자신인지 확인
-          const isMyPlayer = i === rec.myIndex;
-
-          // 1등이면 파란색 (우선순위 높음)
-          if (isWinner) {
-            td.classList.add("winner-cell");
-          }
-          // 1등이 아니면서 자신이면 노란색
-          else if (isMyPlayer) {
-            td.classList.add("my-player-cell");
-          }
-
-          tr.appendChild(td);
-        });
-        playerGamesTbody.appendChild(tr);
-      });
-    } else {
-      playerGamesTbody.innerHTML = '<tr><td colspan="5" class="ranking-placeholder">기록 없음</td></tr>';
-    }
+      PAGINATION_STATE["stats-player-games-tbody"] = 1; // reset page on load
+      renderPlayerGameRecords("stats-player-games-tbody", detail.gameRecords);
   }
 
   loadPlayerBadgesForStats(name);
@@ -797,7 +865,7 @@ async function loadPlayerBadgesForStats(name) {
   if (!container) return;
   container.innerHTML = "";
   if (!name) {
-    container.innerHTML = '<p class="hint-text">플레이어를 선택하세요.</p>';
+    container.innerHTML = '';
     return;
   }
   try {
@@ -840,7 +908,7 @@ function setupArchiveView() {
   // 아카이브 제목 클릭 토글
   setupArchiveRankingTitleToggle();
 
-  // 아카이브 개인 통계 플레이어 선택
+  // 아카이브 플레이어 기록 플레이어 선택
   const psel = document.getElementById("archive-stats-player-select");
   if (psel) psel.addEventListener("change", () => renderArchiveStatsForPlayer(psel.value));
 }
@@ -861,7 +929,7 @@ function setupArchiveRankingTitleToggle() {
 // script_team.js 로 이동됨
 
 
-// 아카이브 뷰 렌더링 (랭킹 또는 개인 통계)
+// 아카이브 뷰 렌더링 (랭킹 또는 플레이어 기록)
 function renderArchiveView() {
   const rankingWrap = document.getElementById("archive-ranking-wrap");
   const statsWrap = document.getElementById("archive-stats-wrap");
@@ -870,16 +938,16 @@ function renderArchiveView() {
   if (ARCHIVE_VIEW_MODE === "ranking") {
     if (rankingWrap) rankingWrap.style.display = "block";
     if (statsWrap) statsWrap.style.display = "none";
-    if (title) title.textContent = "전체 등수 (아카이브)";
+    if (title) title.textContent = "전체 등수";
   } else {
     if (rankingWrap) rankingWrap.style.display = "none";
     if (statsWrap) statsWrap.style.display = "block";
-    if (title) title.textContent = "개인별 통계 (아카이브)";
+    if (title) title.textContent = "플레이어 기록";
     updateArchiveStatsPlayerSelect();
   }
 }
 
-// 아카이브 개인 통계 플레이어 선택 업데이트
+// 아카이브 플레이어 기록 플레이어 선택 업데이트
 function updateArchiveStatsPlayerSelect() {
   const select = document.getElementById("archive-stats-player-select");
   if (!select) return;
@@ -1143,15 +1211,14 @@ function renderArchiveHistoryGraph(name, range = "week") {
     data: {
       labels: data.map(h => h.date.slice(5)),
       datasets: [
-        { label: '총 pt', data: data.map(h => h.total_pt), borderColor: '#4f9cff', backgroundColor: '#4f9cff', yAxisID: 'y', tension: 0.1, pointRadius: 3 },
-        { label: '총 pt 등수', data: data.map(h => h.pt_rank), borderColor: '#ff6b81', borderDash: [5, 5], yAxisID: 'y1', tension: 0.1, pointRadius: 0, hidden: true }
+        { label: '총 pt', data: data.map(h => h.total_pt), borderColor: '#4f9cff', backgroundColor: '#4f9cff', yAxisID: 'y', tension: 0.1, pointRadius: 3 }
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false } },
       scales: {
-        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'pt' } },
-        y1: { type: 'linear', display: true, position: 'right', reverse: true, min: 1, max: maxRank, ticks: { stepSize: 1, precision: 0 }, title: { display: true, text: '등수' }, grid: { drawOnChartArea: false } }
+        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'pt' } }
       }
     }
   });
@@ -1298,7 +1365,7 @@ function renderArchiveStatsForPlayer(name) {
   if (!summaryDiv) return;
 
   if (!name) {
-    summaryDiv.innerHTML = '<p class="hint-text">플레이어를 선택하세요.</p>';
+    summaryDiv.innerHTML = '';
     if (rankSection) rankSection.style.display = "none";
     if (gamesSection) gamesSection.style.display = "none";
     if (dailySection) dailySection.style.display = "none";
@@ -1884,35 +1951,6 @@ function renderHistoryGraph(targetName, range) {
           yAxisID: 'y',
           tension: 0.1,
           pointRadius: 3
-        },
-        {
-          label: '시즌 pt',
-          data: data.map(h => h.season_score),
-          borderColor: '#4dd2a6',
-          backgroundColor: '#4dd2a6',
-          yAxisID: 'y',
-          tension: 0.1,
-          pointRadius: 3
-        },
-        {
-          label: '총 pt 등수',
-          data: data.map(h => h.pt_rank),
-          borderColor: '#ff6b81',
-          borderDash: [5, 5],
-          yAxisID: 'y1',
-          tension: 0.1,
-          pointRadius: 0,
-          hidden: true
-        },
-        {
-          label: '시즌 등수',
-          data: data.map(h => h.season_rank),
-          borderColor: '#ffb142',
-          borderDash: [5, 5],
-          yAxisID: 'y1',
-          tension: 0.1,
-          pointRadius: 0,
-          hidden: true
         }
       ]
     },
@@ -1923,29 +1961,16 @@ function renderHistoryGraph(targetName, range) {
         mode: 'index',
         intersect: false,
       },
+      plugins: {
+        legend: { display: false }
+      },
       scales: {
         y: {
           type: 'linear',
           display: true,
           position: 'left',
           title: { display: true, text: 'pt' }
-        },
-        y1: {
-          type: 'linear',
-          display: true,
-          position: 'right',
-          reverse: true, // 1등이 위로
-          min: 1,
-          max: maxRank, // 데이터 범위에 맞춤
-          ticks: {
-            stepSize: 1, // 정수 단위
-            precision: 0
-          },
-          title: { display: true, text: '등수' },
-          grid: {
-            drawOnChartArea: false,
-          },
-        },
+        }
       }
     }
   });
