@@ -1,3 +1,15 @@
+function escapeHTML(str) {
+  return String(str).replace(/[&<>'"]/g,
+    tag => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag] || tag)
+  );
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const calendarEl = document.getElementById('calendar');
   
@@ -52,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (info.view.type === 'timeGridWeek' && info.event.extendedProps.location) {
         let titleEl = info.el.querySelector('.fc-event-title');
         if (titleEl) {
-           titleEl.innerHTML += `<br/><span style="font-size: 0.85em; opacity: 0.9;">${info.event.extendedProps.location}</span>`;
+           titleEl.innerHTML += `<br/><span style="font-size: 0.85em; opacity: 0.9;">${escapeHTML(info.event.extendedProps.location)}</span>`;
         }
       }
     },

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>관리자 로그인 - {{ club_name }}</title>
+  <link rel="icon" href="/static/icon.png" type="image/png">
+  <link rel="manifest" href="/static/manifest.json">
+  <style>
+    @font-face {
+      font-family: 'GyeonggiBatang';
+      src: url('/static/gyeonggi_batang_regular.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'GyeonggiTitle';
+      src: url('/static/gyeonggi_title_medium.woff2') format('woff2');
+      font-weight: 500;
+      font-style: normal;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'GyeonggiBatang', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #fafafa;
+      color: #333;
+    }
+    h1 {
+      font-family: 'GyeonggiTitle', system-ui, -apple-system, sans-serif;
+      font-size: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .login-box {
+      width: 100%;
+      max-width: 320px;
+      padding: 32px 28px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: #fff;
+    }
+    input[type="password"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    button {
+      width: 100%;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 8px;
+      background: #333;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    button:hover { background: #111; }
+    .error-msg {
+      color: #c0392b;
+      font-size: 13px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: #888;
+      text-decoration: none;
+    }
+    .back-link:hover { color: #4f7dff; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>{{ club_name }} 관리자 로그인</h1>
+    {% if error %}<p class="error-msg">{{ error }}</p>{% endif %}
+    <form method="post">
+      <input type="hidden" name="next" value="{{ next_url }}">
+      <input type="password" name="password" placeholder="관리자 비밀번호" required autofocus>
+      <button type="submit">로그인</button>
+    </form>
+    <a href="/" class="back-link">메인으로 돌아가기</a>
+  </div>
+</body>
+</html>
